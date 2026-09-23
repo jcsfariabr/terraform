@@ -1,0 +1,48 @@
+Copyright (c) 2026 Julio Cesar Siqueira Faria
+
+Todos os direitos reservados.
+
+Este repositório contém o código-fonte e os materiais do jogo "TERRAFORM:
+O Resgate do Planeta Azul", desenvolvido por Julio Cesar Siqueira Faria
+para o Concurso CROPE 2026 (Umuarama-PR).
+
+------------------------------------------------------------------------
+1. Código-fonte (HTML, CSS e JavaScript)
+------------------------------------------------------------------------
+
+O código-fonte deste projeto é disponibilizado publicamente neste
+repositório para fins de avaliação (incluindo a avaliação do CROPE
+2026), consulta e aprendizado.
+
+Não é concedida nenhuma permissão para copiar, redistribuir, sublicenciar,
+modificar ou usar este código-fonte, no todo ou em parte, para fins
+comerciais ou não comerciais, sem autorização prévia e por escrito do
+autor. Ver, estudar e executar o jogo a partir deste repositório é
+livremente permitido.
+
+------------------------------------------------------------------------
+2. Trilha sonora e efeitos sonoros (pasta assets/)
+------------------------------------------------------------------------
+
+Os arquivos de áudio contidos em `assets/` são obras de terceiros,
+disponibilizadas por seus respectivos autores como livres de direitos
+autorais para este tipo de uso ("royalty-free"). Esses arquivos:
+
+  - NÃO são de autoria de Julio Cesar Siqueira Faria;
+  - NÃO estão cobertos pela reserva de direitos da Seção 1 acima;
+  - permanecem sob a titularidade e os termos originais de seus
+    respectivos criadores.
+
+A autoria de cada faixa está listada no README.md deste repositório e no
+popup "Sobre" do próprio jogo. Qualquer reuso desses arquivos de áudio
+fora deste projeto deve respeitar os termos de licenciamento originais de
+cada autor/plataforma de origem, não os termos deste arquivo.
+
+------------------------------------------------------------------------
+3. Isenção de responsabilidade
+------------------------------------------------------------------------
+
+ESTE SOFTWARE É FORNECIDO "COMO ESTÁ", SEM GARANTIA DE QUALQUER TIPO,
+EXPRESSA OU IMPLÍCITA. EM NENHUMA HIPÓTESE O AUTOR SERÁ RESPONSÁVEL POR
+QUALQUER RECLAMAÇÃO, DANO OU OUTRA RESPONSABILIDADE DECORRENTE DO USO
+DESTE SOFTWARE.

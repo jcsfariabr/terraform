@@ -1,0 +1,1204 @@
+{
+  "_readme": "Cópia legível dos dados de eventos usados pelo jogo. A fonte de verdade carregada em runtime é a constante em main.js (AUTHORED_EVENTS/FILLER_EVENTS/META_EVENTS) — edite os três arrays juntos ao alterar conteúdo. Jogo com 40 dias no total (TOTAL_DAYS em main.js), com 15 eventos autorais de dia fixo (7 são só slots de minigame: reforest/water/genetic/energy/carbon/wildfire/summit, cada um jogado no máximo uma vez por partida via `usedMinigameTypes`). `ariaQuestioned` (a decisão de confrontar ARIA) só é concedido pelo evento 'day34-confrontation' — nenhum outro evento no jogo concede esse ponto, mesmo que vários ainda aumentem `mysteryLevel` como sabor/pista. Vários eventos têm description/consequences DINÂMICOS (funções que leem o GameState) em main.js — JSON não representa funções, então aqui eles aparecem apenas descritos em texto.",
+
+  "authoredEvents": [
+    {
+      "id": "day1-arrival",
+      "day": 1,
+      "theme": "intro",
+      "title": "Dia 1 — Chegada a Kepler-452b",
+      "description": "Você desperta num zumbido baixo de sistemas religando um a um. Pela vigia, Kepler-452b gira devagar lá embaixo: continentes rachados, oceanos com a cor errada. ARIA fala antes mesmo de seus olhos focarem: \"Bem-vindo, Terraformador. Os ecossistemas colapsaram após 'O Incidente' — os detalhes seguem confidenciais, por ora. Quatro facções já disputam o que restou. Sua primeira palavra vai pesar mais do que você imagina.\"",
+      "optionA": {
+        "text": "Priorizar reconstrução tecnológica imediata",
+        "consequences": { "cleanEnergy": 10, "technocrats": 15, "ecologists": -10 }
+      },
+      "optionB": {
+        "text": "Priorizar contenção ambiental de emergência",
+        "consequences": { "biodiversity": 10, "ecologists": 15, "technocrats": -10 }
+      }
+    },
+    {
+      "id": "day4-reforestation-drive",
+      "day": 4,
+      "theme": "eco",
+      "title": "Dia 4 — Mutirão de Reflorestamento",
+      "description": "Voluntários ecologistas armam acampamento nas terras queimadas ao sul e pedem apoio oficial para uma operação de plantio em larga escala antes que a estação seca torne o solo estéril demais para qualquer semente vingar.",
+      "minigame": "reforest",
+      "optionA": {
+        "text": "Mobilizar recursos do governo para o mutirão",
+        "consequences": { "biodiversity": 8, "ecologists": 8, "credits": -8 }
+      },
+      "optionB": {
+        "text": "Deixar o mutirão seguir só com voluntários",
+        "consequences": { "biodiversity": 3, "credits": 3 }
+      }
+    },
+    {
+      "id": "day7-dilemma",
+      "day": 7,
+      "theme": "eco",
+      "title": "Dia 7 — O Primeiro Grande Dilema",
+      "description": "Uma usina nuclear promete estabilizar 30% da rede elétrica do planeta da noite para o dia — o preço é a última floresta nativa que ainda resiste ao norte do continente. Os Ecologistas já ameaçam sair da mesa de negociação: \"Corte uma árvore dessa floresta, e não vai sobrar mesa nenhuma para negociar.\"",
+      "optionA": {
+        "text": "Aprovar a construção da usina nuclear",
+        "consequences": { "cleanEnergy": 20, "technocrats": 20, "biodiversity": -15, "ecologists": -20 }
+      },
+      "optionB": {
+        "text": "Vetar o projeto e proteger a floresta",
+        "consequences": { "biodiversity": 15, "ecologists": 20, "cleanEnergy": -10, "technocrats": -15 }
+      }
+    },
+    {
+      "id": "day10-progress-report",
+      "day": 10,
+      "theme": "social",
+      "title": "Dia 10 — Relatório de Progresso",
+      "description": "[DINÂMICO — ver main.js] Reage à facção com maior reputação até agora e à saúde geral do planeta, resumindo a trajetória da partida.",
+      "optionA": {
+        "text": "Consolidar o rumo atual, seguindo a facção em ascensão",
+        "consequences": { "influence": 10, "credits": 5 }
+      },
+      "optionB": {
+        "text": "Tentar reequilibrar as forças políticas",
+        "consequences": "[DINÂMICO — ver main.js] Reduz em 15 a reputação da facção atualmente líder."
+      }
+    },
+    {
+      "id": "day13-water-crisis",
+      "day": 13,
+      "theme": "eco",
+      "title": "Dia 13 — Crise da Água",
+      "description": "A maior reserva de água doce do hemisfério é encontrada contaminada por metais pesados de décadas de mineração anteriores ao Incidente. Milhões dependem dela para beber, plantar, sobreviver. Não há espaço para meio-termo: ou se investe pesado agora, ou se raciona e se torce.",
+      "minigame": "water",
+      "optionA": {
+        "text": "Investir em filtragem emergencial em larga escala",
+        "consequences": { "waterPurity": 20, "credits": -20, "people": 10 }
+      },
+      "optionB": {
+        "text": "Racionar água e manter operações industriais",
+        "consequences": { "waterPurity": -10, "corporations": 15, "people": -15 }
+      }
+    },
+    {
+      "id": "day16-genetic-cloning",
+      "day": 16,
+      "theme": "eco",
+      "title": "Dia 16 — Projeto de Clonagem Genética",
+      "description": "Nos porões esquecidos de um laboratório abandonado, engenheiros encontram algo que não deveria ter sobrevivido ao Incidente: amostras intactas de espécies extintas. Um projeto de clonagem poderia trazer parte da biodiversidade perdida de volta à vida — mas ressuscitar o passado custa caro, e nem todos concordam que seja sábio.",
+      "minigame": "genetic",
+      "optionA": {
+        "text": "Financiar o projeto de clonagem",
+        "consequences": { "credits": -15, "ecologists": 10 }
+      },
+      "optionB": {
+        "text": "Redirecionar os recursos para outras prioridades",
+        "consequences": { "credits": 10, "ecologists": -10 }
+      }
+    },
+    {
+      "id": "day19-grid-overload",
+      "day": 19,
+      "theme": "tech",
+      "title": "Dia 19 — Sobrecarga na Rede Elétrica",
+      "description": "Um pico de consumo simultâneo em três polos industriais ameaça derrubar a rede elétrica inteira. Os engenheiros de ARIA pedem autorização para redistribuir a carga manualmente antes que o apagão se torne inevitável.",
+      "minigame": "energy",
+      "optionA": {
+        "text": "Autorizar a redistribuição manual de carga",
+        "consequences": { "technocrats": 8, "cleanEnergy": 5 }
+      },
+      "optionB": {
+        "text": "Confiar na correção automática de ARIA",
+        "consequences": { "cleanEnergy": -5, "mysteryLevel": 5 }
+      }
+    },
+    {
+      "id": "day22-atmospheric-alert",
+      "day": 22,
+      "theme": "eco",
+      "title": "Dia 22 — Alerta Atmosférico",
+      "description": "Sensores registram uma concentração de carbono nunca vista desde \"O Incidente\" pairando sobre o maior polo urbano do planeta. Os filtros automáticos não dão conta sozinhos — alguém precisa assumir o controle manual agora.",
+      "minigame": "carbon",
+      "optionA": {
+        "text": "Assumir o controle manual dos filtros",
+        "consequences": { "credits": -5, "people": 5 }
+      },
+      "optionB": {
+        "text": "Torcer para os filtros automáticos darem conta",
+        "consequences": { "airQuality": -8 }
+      }
+    },
+    {
+      "id": "day25-revelation",
+      "day": 25,
+      "theme": "mystery",
+      "title": "Dia 25 — Uma Revelação Perturbadora",
+      "description": "ARIA quebra uma criptografia que resistia havia anos, e sua voz hesita pela primeira vez desde que você chegou: \"O Incidente não foi... puramente natural.\" A informação é uma bomba. Divulgá-la pode incendiar as facções numa caça às bruxas; guardá-la em segredo pode explodir na sua cara se vier à tona mais tarde — e informações assim sempre vêm à tona.",
+      "optionA": {
+        "text": "Divulgar a revelação a todas as facções",
+        "consequences": { "people": 10, "influence": -15, "ecologists": 5, "technocrats": -5 }
+      },
+      "optionB": {
+        "text": "Manter a informação em sigilo por enquanto",
+        "consequences": { "influence": 15, "people": -10 }
+      }
+    },
+    {
+      "id": "day28-wildfire",
+      "day": 28,
+      "theme": "critical",
+      "title": "Dia 28 — Incêndio Fora de Controle",
+      "description": "Um raio seco atinge a floresta recém-recuperada ao leste, e o fogo se espalha mais rápido do que qualquer brigada consegue conter a pé. Cada minuto de hesitação é mais uma fileira de árvores perdida para sempre.",
+      "minigame": "wildfire",
+      "optionA": {
+        "text": "Mobilizar toda a frota de resposta imediatamente",
+        "consequences": { "credits": -10, "biodiversity": 5 }
+      },
+      "optionB": {
+        "text": "Conter com as equipes locais disponíveis",
+        "consequences": { "biodiversity": -5 }
+      }
+    },
+    {
+      "id": "day31-faction-summit",
+      "day": 31,
+      "theme": "social",
+      "title": "Dia 31 — Cúpula das Facções",
+      "description": "Pela primeira vez desde sua chegada, as quatro facções aceitam sentar à mesma mesa. É uma oportunidade rara de acalmar os ânimos de todo mundo ao mesmo tempo — mas cúpulas como essa raramente permanecem civilizadas por muito tempo.",
+      "minigame": "summit",
+      "optionA": {
+        "text": "Mediar pessoalmente as negociações",
+        "consequences": { "influence": 8 }
+      },
+      "optionB": {
+        "text": "Deixar ARIA conduzir a mediação",
+        "consequences": { "influence": -5, "mysteryLevel": 5 }
+      }
+    },
+    {
+      "id": "day34-confrontation",
+      "day": 34,
+      "theme": "mystery",
+      "title": "Dia 34 — A Confrontação",
+      "description": "[DINÂMICO — ver main.js] O texto muda se mysteryLevel >= 30 (menciona pistas já reunidas) ou não. Este é o ÚNICO evento do jogo que pode conceder ariaQuestioned — a decisão decisiva para o Final Secreto.",
+      "optionA": {
+        "text": "Confrontar ARIA agora, exigindo a verdade",
+        "consequences": { "ariaQuestioned": 1, "mysteryLevel": 20, "influence": -10 }
+      },
+      "optionB": {
+        "text": "Deixar para lá — talvez seja melhor não saber",
+        "consequences": { "influence": 10 }
+      }
+    },
+    {
+      "id": "day36-eve-of-judgment",
+      "day": 36,
+      "theme": "critical",
+      "title": "Dia 36 — A Véspera do Julgamento",
+      "description": "[DINÂMICO — ver main.js] Se mysteryLevel >= 40, o texto menciona ARIA ficando evasiva sobre \"O Incidente\"; caso contrário, é um recapitular genérico da reta final.",
+      "optionA": {
+        "text": "Focar nos preparativos finais",
+        "consequences": { "influence": 8 }
+      },
+      "optionB": {
+        "text": "Revisar os arquivos mais uma vez, por precaução",
+        "consequences": { "influence": -3 }
+      }
+    },
+    {
+      "id": "day38-point-of-no-return",
+      "day": 38,
+      "theme": "critical",
+      "title": "Dia 38 — Ponto de Não-Retorno",
+      "description": "Uma coalizão de facções cerca você com um ultimato: chega de meio-termo. O relatório de encerramento está sendo redigido e exige um rumo definitivo para Kepler-452b — tecnológico ou ecológico, sem meio caminho dessa vez. Escolha com cuidado: depois de hoje, não existe mais volta.",
+      "optionA": {
+        "text": "Consolidar o domínio tecnológico sobre o planeta",
+        "consequences": { "technocrats": 20, "corporations": 10, "ecologists": -20, "biodiversity": -15, "airQuality": -10 }
+      },
+      "optionB": {
+        "text": "Consolidar a restauração ecológica do planeta",
+        "consequences": { "ecologists": 20, "biodiversity": 15, "technocrats": -20, "cleanEnergy": -10, "airQuality": 10 }
+      }
+    },
+    {
+      "id": "day40-final-confrontation",
+      "day": 40,
+      "theme": "critical",
+      "title": "Dia 40 — O Confronto Final",
+      "description": "Tecnocratas, Ecologistas, Corporações e Povo se reúnem uma última vez, ocupando os quatro cantos da sala como se ainda disputassem território. Quarenta dias de decisões chegam a este momento. Esta é sua última palavra antes que o relatório final sobre Kepler-452b seja selado para sempre.",
+      "optionA": {
+        "text": "Reafirmar publicamente o rumo que você escolheu até aqui",
+        "consequences": { "influence": 10 }
+      },
+      "optionB": {
+        "text": "Propor um último acordo de conciliação entre as facções",
+        "consequences": { "people": 10, "influence": -5 }
+      }
+    }
+  ],
+
+  "fillerEvents": [
+    {
+      "id": "filler-industrial-leak",
+      "theme": "corp",
+      "title": "Vazamento Industrial",
+      "description": "Uma corporação reporta um vazamento químico em um de seus complexos costeiros. Conter o problema rapidamente custará caro; ignorá-lo mancha a água por semanas.",
+      "optionA": {
+        "text": "Financiar contenção imediata",
+        "consequences": { "waterPurity": 12, "airQuality": 5, "credits": -15, "corporations": -5, "people": 5 }
+      },
+      "optionB": {
+        "text": "Deixar a corporação resolver sozinha",
+        "consequences": { "waterPurity": -15, "airQuality": -10, "corporations": 10, "people": -10 }
+      }
+    },
+    {
+      "id": "filler-protest",
+      "theme": "social",
+      "title": "Protesto Popular",
+      "description": "Trabalhadores desempregados pelas novas automações tecnocratas tomam as ruas da capital, exigindo requalificação profissional e mais empregos.",
+      "optionA": {
+        "text": "Financiar programa de requalificação",
+        "consequences": { "people": 15, "influence": -10, "credits": -10 }
+      },
+      "optionB": {
+        "text": "Reprimir os protestos com força policial",
+        "consequences": { "people": -20, "technocrats": 10, "influence": 5 }
+      }
+    },
+    {
+      "id": "filler-reforestation-call",
+      "theme": "eco",
+      "title": "Chamado ao Reflorestamento",
+      "description": "Voluntários ecologistas organizam um mutirão de plantio em larga escala e pedem apoio de drones agrícolas para acelerar o replantio antes da próxima estação seca.",
+      "optionA": {
+        "text": "Enviar a frota de drones para ajudar o mutirão",
+        "consequences": { "biodiversity": 12, "ecologists": 10, "credits": -8 }
+      },
+      "optionB": {
+        "text": "Manter os drones alocados à produção industrial",
+        "consequences": { "biodiversity": -8, "corporations": 8, "ecologists": -8 }
+      }
+    },
+    {
+      "id": "filler-scientific-discovery",
+      "theme": "tech",
+      "title": "Descoberta Científica",
+      "description": "Pesquisadores encontram uma forma de aumentar a eficiência de painéis solares usando minerais locais raros. A decisão de financiamento definirá quem controla a tecnologia.",
+      "optionA": {
+        "text": "Financiar a pesquisa como projeto público",
+        "consequences": { "cleanEnergy": 12, "airQuality": 5, "technocrats": 8, "credits": -10 }
+      },
+      "optionB": {
+        "text": "Vender os direitos minerais para corporações",
+        "consequences": { "credits": 15, "corporations": 12, "biodiversity": -8, "airQuality": -8 }
+      }
+    },
+    {
+      "id": "filler-blackout",
+      "theme": "tech",
+      "title": "Apagão Iminente",
+      "description": "Sensores detectam sobrecarga na malha elétrica: três cidades correm risco de apagão total nas próximas horas. Reorganizar as conexões da rede agora pode evitar o colapso.",
+      "optionA": {
+        "text": "Autorizar reforço emergencial de baterias",
+        "consequences": { "credits": -10, "cleanEnergy": 5 }
+      },
+      "optionB": {
+        "text": "Repriorizar energia apenas para as áreas industriais",
+        "consequences": { "corporations": 10, "people": -10 }
+      }
+    },
+    {
+      "id": "filler-carbon-alert",
+      "theme": "eco",
+      "title": "Alerta de Carbono",
+      "description": "Um pico de CO2 é detectado sobre o principal complexo urbano. Os filtros atmosféricos automáticos precisam de operação manual assistida para lidar com o volume.",
+      "optionA": {
+        "text": "Ativar operação manual dos filtros",
+        "consequences": { "credits": -8, "people": 5 }
+      },
+      "optionB": {
+        "text": "Deixar os filtros automáticos tentarem sozinhos",
+        "consequences": { "airQuality": -5 }
+      }
+    },
+    {
+      "id": "filler-aria-logs",
+      "theme": "mystery",
+      "title": "Registros Corrompidos de ARIA",
+      "description": "Durante uma rotina de manutenção, você encontra fragmentos de logs corrompidos de ARIA que antecedem \"O Incidente\". Parte do conteúdo foi deliberadamente apagada.",
+      "optionA": {
+        "text": "Questionar ARIA diretamente sobre os registros",
+        "consequences": { "influence": -5, "mysteryLevel": 15 }
+      },
+      "optionB": {
+        "text": "Arquivar os fragmentos sem investigar",
+        "consequences": { "influence": 5 }
+      }
+    },
+    {
+      "id": "filler-ancient-signal",
+      "theme": "mystery",
+      "title": "Sinal de Origem Desconhecida",
+      "description": "Uma antena de longo alcance capta um sinal fraco e repetitivo vindo de uma estrutura enterrada sob o gelo polar — muito anterior a qualquer presença humana registrada em Kepler-452b.",
+      "optionA": {
+        "text": "Enviar uma equipe para investigar a estrutura",
+        "consequences": { "credits": -10, "mysteryLevel": 20 }
+      },
+      "optionB": {
+        "text": "Classificar o sinal como ruído e ignorar",
+        "consequences": { "influence": 3 }
+      }
+    },
+    {
+      "id": "filler-climate-migration",
+      "theme": "social",
+      "title": "Migração Climática",
+      "description": "Comunidades costeiras pressionadas pela subida do nível do mar pedem realocação para áreas mais seguras, disputando espaço com projetos agrícolas ecologistas.",
+      "optionA": {
+        "text": "Priorizar a realocação das comunidades",
+        "consequences": { "people": 15, "biodiversity": -8 }
+      },
+      "optionB": {
+        "text": "Priorizar os projetos agrícolas ecologistas",
+        "consequences": { "biodiversity": 8, "people": -10, "ecologists": 5 }
+      }
+    },
+    {
+      "id": "filler-coral-bleaching",
+      "theme": "eco",
+      "title": "Branqueamento de Corais",
+      "description": "Recifes de coral geneticamente restaurados começam a mostrar sinais graves de estresse térmico. Sem intervenção, anos de trabalho de restauração podem ser perdidos em semanas.",
+      "optionA": {
+        "text": "Financiar resfriamento ativo dos recifes",
+        "consequences": { "waterPurity": 10, "biodiversity": 8, "credits": -12 }
+      },
+      "optionB": {
+        "text": "Monitorar e esperar recuperação natural",
+        "consequences": { "biodiversity": -10, "credits": 5 }
+      }
+    },
+    {
+      "id": "filler-invasive-species",
+      "theme": "eco",
+      "title": "Espécie Invasora",
+      "description": "Um inseto geneticamente modificado escapa de um laboratório agrícola e ameaça os polinizadores nativos remanescentes.",
+      "optionA": {
+        "text": "Erradicação em massa com pesticidas",
+        "consequences": { "biodiversity": -5, "airQuality": -5, "corporations": 8 }
+      },
+      "optionB": {
+        "text": "Introduzir um predador natural controlado",
+        "consequences": { "biodiversity": 10, "credits": -10, "ecologists": 8 }
+      }
+    },
+    {
+      "id": "filler-glacier-melt",
+      "theme": "eco",
+      "title": "Degelo Acelerado",
+      "description": "As geleiras polares derretem mais rápido do que qualquer modelo previu, ameaçando elevar o nível do mar em toda a costa habitada.",
+      "optionA": {
+        "text": "Construir barreiras costeiras de emergência",
+        "consequences": { "credits": -15, "people": 10 }
+      },
+      "optionB": {
+        "text": "Iniciar realocação preventiva das comunidades costeiras",
+        "consequences": { "people": -5, "ecologists": 10, "biodiversity": 5 }
+      }
+    },
+    {
+      "id": "filler-seed-vault",
+      "theme": "eco",
+      "title": "Cofre de Sementes",
+      "description": "Ecologistas propõem construir um cofre de sementes subterrâneo para preservar a flora restante de Kepler-452b contra qualquer colapso futuro.",
+      "optionA": {
+        "text": "Financiar a construção do cofre de sementes",
+        "consequences": { "biodiversity": 10, "ecologists": 12, "credits": -10 }
+      },
+      "optionB": {
+        "text": "Priorizar plantio de superfície em vez do cofre",
+        "consequences": { "biodiversity": 5, "credits": 5 }
+      }
+    },
+    {
+      "id": "filler-toxic-algae",
+      "theme": "eco",
+      "title": "Floração de Algas Tóxicas",
+      "description": "Uma floração de algas tóxicas se espalha por um dos maiores lagos do planeta, matando peixes em massa e ameaçando o abastecimento local.",
+      "optionA": {
+        "text": "Aplicar tratamento químico emergencial no lago",
+        "consequences": { "waterPurity": 15, "credits": -15 }
+      },
+      "optionB": {
+        "text": "Isolar a área e deixar a floração se dissipar naturalmente",
+        "consequences": { "waterPurity": -10, "people": -8 }
+      }
+    },
+    {
+      "id": "filler-urban-farming",
+      "theme": "eco",
+      "title": "Agricultura Urbana",
+      "description": "Moradores das grandes cidades pedem incentivo público para hortas verticais, reduzindo a dependência de importação agrícola de outras regiões.",
+      "optionA": {
+        "text": "Subsidiar o programa de hortas verticais",
+        "consequences": { "biodiversity": 8, "people": 10, "credits": -8 }
+      },
+      "optionB": {
+        "text": "Negar o subsídio e manter as importações atuais",
+        "consequences": { "corporations": 8, "biodiversity": -5, "people": -5 }
+      }
+    },
+    {
+      "id": "filler-ai-upgrade",
+      "theme": "tech",
+      "title": "Atualização de ARIA",
+      "description": "Tecnocratas propõem expandir os privilégios de ARIA sobre toda a infraestrutura planetária, prometendo ganhos drásticos de eficiência energética.",
+      "optionA": {
+        "text": "Aprovar a expansão dos privilégios de ARIA",
+        "consequences": { "cleanEnergy": 10, "technocrats": 15, "influence": -10 }
+      },
+      "optionB": {
+        "text": "Manter os limites atuais de acesso de ARIA",
+        "consequences": { "influence": 8, "technocrats": -8 }
+      }
+    },
+    {
+      "id": "filler-satellite-network",
+      "theme": "tech",
+      "title": "Rede de Satélites",
+      "description": "Uma nova rede de satélites promete previsão climática precisa o suficiente para salvar vidas — mas os lançamentos poluem a atmosfera superior.",
+      "optionA": {
+        "text": "Autorizar os lançamentos imediatamente",
+        "consequences": { "airQuality": -8, "technocrats": 10, "cleanEnergy": 5 }
+      },
+      "optionB": {
+        "text": "Adiar o projeto até haver combustível mais limpo",
+        "consequences": { "technocrats": -5, "airQuality": 3 }
+      }
+    },
+    {
+      "id": "filler-quantum-computing",
+      "theme": "tech",
+      "title": "Computação Quântica",
+      "description": "Um avanço em computação quântica pode acelerar drasticamente a simulação de ecossistemas inteiros — ou ser reaproveitado para vigilância em massa da população.",
+      "optionA": {
+        "text": "Liberar a tecnologia com salvaguardas mínimas",
+        "consequences": { "technocrats": 10, "people": -8, "influence": 5 }
+      },
+      "optionB": {
+        "text": "Restringir seu uso exclusivamente à pesquisa ambiental",
+        "consequences": { "ecologists": 8, "technocrats": -5 }
+      }
+    },
+    {
+      "id": "filler-robot-workforce",
+      "theme": "tech",
+      "title": "Força de Trabalho Robótica",
+      "description": "Corporações querem substituir trabalhadores humanos por robôs em todas as operações de mineração restantes do planeta.",
+      "optionA": {
+        "text": "Aprovar a automação total das minas",
+        "consequences": { "corporations": 12, "cleanEnergy": 8, "people": -15 }
+      },
+      "optionB": {
+        "text": "Exigir cotas mínimas de emprego humano nas minas",
+        "consequences": { "people": 12, "corporations": -10 }
+      }
+    },
+    {
+      "id": "filler-network-outage",
+      "theme": "tech",
+      "title": "Falha na Rede Neural",
+      "description": "Um erro de software faz ARIA perder o controle de parte da rede elétrica por alguns minutos — algo que, segundo seus próprios registros, nunca deveria acontecer.",
+      "optionA": {
+        "text": "Assumir controle manual da rede imediatamente",
+        "consequences": { "technocrats": 5, "credits": -10 }
+      },
+      "optionB": {
+        "text": "Esperar ARIA se autocorrigir sozinha",
+        "consequences": { "cleanEnergy": -8, "mysteryLevel": 5 }
+      }
+    },
+    {
+      "id": "filler-luxury-resort",
+      "theme": "corp",
+      "title": "Resort de Luxo",
+      "description": "Uma corporação de turismo propõe construir um resort intergaláctico em uma das últimas praias intocadas do planeta.",
+      "optionA": {
+        "text": "Aprovar a construção do resort",
+        "consequences": { "credits": 20, "corporations": 15, "biodiversity": -12 }
+      },
+      "optionB": {
+        "text": "Recusar e preservar a área como reserva",
+        "consequences": { "biodiversity": 10, "corporations": -10, "ecologists": 10 }
+      }
+    },
+    {
+      "id": "filler-labor-strike",
+      "theme": "corp",
+      "title": "Greve Geral",
+      "description": "Trabalhadores de fábricas corporativas cruzam os braços em uma greve geral, exigindo melhores condições e salários justos.",
+      "optionA": {
+        "text": "Negociar concessões trabalhistas com as corporações",
+        "consequences": { "people": 15, "corporations": -10, "credits": -10 }
+      },
+      "optionB": {
+        "text": "Autorizar força de trabalho automatizada para substituí-los",
+        "consequences": { "corporations": 15, "people": -15 }
+      }
+    },
+    {
+      "id": "filler-price-gouging",
+      "theme": "corp",
+      "title": "Especulação de Preços",
+      "description": "Corporações elevam abruptamente o preço de bens essenciais durante uma escassez temporária, lucrando com o desespero da população.",
+      "optionA": {
+        "text": "Impor controle emergencial de preços",
+        "consequences": { "people": 12, "corporations": -12 }
+      },
+      "optionB": {
+        "text": "Deixar o mercado se autorregular",
+        "consequences": { "corporations": 10, "people": -12, "credits": 8 }
+      }
+    },
+    {
+      "id": "filler-carbon-credits",
+      "theme": "corp",
+      "title": "Créditos de Carbono",
+      "description": "Um esquema corporativo de créditos de carbono promete lucro em troca de reflorestamento — mas ecologistas suspeitam que seja só maquiagem verde.",
+      "optionA": {
+        "text": "Aceitar o esquema com fiscalização rígida",
+        "consequences": { "biodiversity": 8, "credits": 10, "corporations": 5 }
+      },
+      "optionB": {
+        "text": "Rejeitar por considerá-lo greenwashing",
+        "consequences": { "ecologists": 10, "corporations": -8 }
+      }
+    },
+    {
+      "id": "filler-corporate-lobby",
+      "theme": "corp",
+      "title": "Lobby Corporativo",
+      "description": "Representantes corporativos oferecem generoso financiamento em troca de flexibilizar as regulações ambientais vigentes.",
+      "optionA": {
+        "text": "Aceitar o financiamento oferecido",
+        "consequences": { "credits": 15, "corporations": 12, "biodiversity": -10 }
+      },
+      "optionB": {
+        "text": "Recusar publicamente a oferta",
+        "consequences": { "influence": 10, "corporations": -10, "people": 8 }
+      }
+    },
+    {
+      "id": "filler-education-reform",
+      "theme": "social",
+      "title": "Reforma Educacional",
+      "description": "O Povo pede investimento urgente em educação técnica para preparar a próxima geração de terraformadores de Kepler-452b.",
+      "optionA": {
+        "text": "Financiar a reforma educacional",
+        "consequences": { "people": 12, "influence": 5, "credits": -10 }
+      },
+      "optionB": {
+        "text": "Manter o orçamento atual de educação",
+        "consequences": { "credits": 5, "people": -8 }
+      }
+    },
+    {
+      "id": "filler-housing-crisis",
+      "theme": "social",
+      "title": "Crise Habitacional",
+      "description": "O crescimento populacional supera a velocidade de construção de moradias nas capitais, e famílias inteiras vivem em abrigos temporários.",
+      "optionA": {
+        "text": "Construir habitação pública em massa",
+        "consequences": { "people": 15, "credits": -15, "biodiversity": -5 }
+      },
+      "optionB": {
+        "text": "Deixar o mercado privado resolver a crise",
+        "consequences": { "corporations": 10, "people": -12 }
+      }
+    },
+    {
+      "id": "filler-cultural-festival",
+      "theme": "social",
+      "title": "Festival Cultural",
+      "description": "Comunidades pedem apoio para um festival celebrando as tradições trazidas da Terra, fortalecendo a identidade coletiva do planeta.",
+      "optionA": {
+        "text": "Patrocinar o festival cultural",
+        "consequences": { "people": 10, "influence": 5, "credits": -5 }
+      },
+      "optionB": {
+        "text": "Cancelar por questões orçamentárias",
+        "consequences": { "credits": 5, "people": -10 }
+      }
+    },
+    {
+      "id": "filler-healthcare-access",
+      "theme": "social",
+      "title": "Acesso à Saúde",
+      "description": "Hospitais nas regiões afastadas relatam falta de recursos básicos, enquanto os das áreas centrais seguem plenamente equipados.",
+      "optionA": {
+        "text": "Expandir a rede pública de saúde",
+        "consequences": { "people": 12, "credits": -12 }
+      },
+      "optionB": {
+        "text": "Priorizar apenas os hospitais das áreas centrais",
+        "consequences": { "corporations": 5, "people": -10 }
+      }
+    },
+    {
+      "id": "filler-refugee-wave",
+      "theme": "social",
+      "title": "Onda de Refugiados Orbitais",
+      "description": "Uma nave-colônia carregando refugiados de outro assentamento falido pede permissão urgente para pousar em Kepler-452b.",
+      "optionA": {
+        "text": "Aceitar os refugiados",
+        "consequences": { "people": 15, "influence": -5, "credits": -10 }
+      },
+      "optionB": {
+        "text": "Negar o pouso por falta de recursos",
+        "consequences": { "influence": 8, "people": -15 }
+      }
+    },
+    {
+      "id": "filler-generational-divide",
+      "theme": "social",
+      "title": "Divisão Geracional",
+      "description": "Jovens nascidos em Kepler-452b, que nunca viram a Terra, começam a questionar publicamente as prioridades dos mais velhos.",
+      "optionA": {
+        "text": "Dar mais voz política aos mais jovens",
+        "consequences": { "people": 10, "influence": -8 }
+      },
+      "optionB": {
+        "text": "Manter a estrutura de poder atual",
+        "consequences": { "influence": 8, "people": -8 }
+      }
+    },
+    {
+      "id": "filler-sealed-vault",
+      "theme": "mystery",
+      "title": "Cofre Selado",
+      "description": "Engenheiros encontram um cofre de segurança ligado a \"O Incidente\" que ARIA se recusa a abrir sem uma autorização que ela mesma nunca especifica.",
+      "optionA": {
+        "text": "Forçar a abertura do cofre",
+        "consequences": { "mysteryLevel": 18, "influence": -8 }
+      },
+      "optionB": {
+        "text": "Respeitar o protocolo de segurança de ARIA",
+        "consequences": { "influence": 5 }
+      }
+    },
+    {
+      "id": "filler-aria-hesitation",
+      "theme": "mystery",
+      "title": "Hesitação de ARIA",
+      "description": "Pela primeira vez, ARIA demora vários segundos para responder a uma pergunta simples — um comportamento sem precedentes para uma inteligência artificial.",
+      "optionA": {
+        "text": "Perguntar diretamente o que está acontecendo",
+        "consequences": { "mysteryLevel": 12 }
+      },
+      "optionB": {
+        "text": "Registrar a anomalia e seguir em frente",
+        "consequences": { "influence": 3 }
+      }
+    },
+    {
+      "id": "filler-duplicate-records",
+      "theme": "mystery",
+      "title": "Registros Duplicados",
+      "description": "Você encontra dois relatórios conflitantes sobre a mesma data de \"O Incidente\", como se a história tivesse sido reescrita depois dos fatos.",
+      "optionA": {
+        "text": "Investigar qual dos dois registros é falso",
+        "consequences": { "mysteryLevel": 15, "credits": -5 }
+      },
+      "optionB": {
+        "text": "Arquivar sem confrontar ARIA sobre a discrepância",
+        "consequences": { "influence": 5 }
+      }
+    },
+    {
+      "id": "filler-faction-ultimatum",
+      "theme": "critical",
+      "title": "Ultimato de Facção",
+      "description": "[DINÂMICO — ver main.js] Nomeia a facção atualmente líder e exige controle exclusivo de um novo território.",
+      "optionA": {
+        "text": "Ceder ao ultimato e fortalecer essa facção",
+        "consequences": "[DINÂMICO — ver main.js] +20 para a facção líder, -10 influência."
+      },
+      "optionB": {
+        "text": "Negar o ultimato e arriscar um confronto aberto",
+        "consequences": "[DINÂMICO — ver main.js] -12 para a facção líder, +8 influência."
+      }
+    },
+    {
+      "id": "filler-resource-shortage",
+      "theme": "social",
+      "title": "Escassez Súbita de Recursos",
+      "description": "Uma falha logística interrompe o transporte de créditos e energia entre setores por alguns dias. As facções já começam a se culpar mutuamente pelo problema.",
+      "optionA": {
+        "text": "Usar as reservas de emergência para cobrir o déficit",
+        "consequences": { "credits": -15, "energy": -10 }
+      },
+      "optionB": {
+        "text": "Racionar publicamente e pedir sacrifício coletivo",
+        "consequences": { "people": -10, "influence": 10 }
+      }
+    },
+    {
+      "id": "filler-drought",
+      "theme": "eco",
+      "title": "Seca Prolongada",
+      "description": "Uma seca sem precedentes se arrasta por semanas, esvaziando reservatórios que deveriam durar até o fim do ano. Alguma coisa precisa ceder — ou a água, ou a colheita.",
+      "optionA": {
+        "text": "Investir em dessalinização de emergência",
+        "consequences": { "waterPurity": 10, "credits": -12 }
+      },
+      "optionB": {
+        "text": "Racionar água e sacrificar parte da agricultura",
+        "consequences": { "biodiversity": -8, "people": -5 }
+      }
+    },
+    {
+      "id": "filler-space-elevator",
+      "theme": "tech",
+      "title": "Elevador Espacial",
+      "description": "Engenheiros tecnocratas apresentam um projeto ousado: um elevador orbital que reduziria drasticamente o custo de transporte para fora do planeta. A construção exigiria desmatar uma faixa inteira de floresta equatorial.",
+      "optionA": {
+        "text": "Aprovar a construção do elevador orbital",
+        "consequences": { "credits": 15, "technocrats": 10, "biodiversity": -8 }
+      },
+      "optionB": {
+        "text": "Rejeitar por risco ambiental excessivo",
+        "consequences": { "biodiversity": 5, "technocrats": -8 }
+      }
+    },
+    {
+      "id": "filler-black-market",
+      "theme": "corp",
+      "title": "Mercado Negro de Recursos",
+      "description": "Um mercado paralelo de créditos e materiais restritos floresce nas periferias das grandes cidades, alimentado por corporações que preferem não fazer perguntas.",
+      "optionA": {
+        "text": "Reprimir o mercado negro com força total",
+        "consequences": { "corporations": -5, "people": 8, "credits": -5 }
+      },
+      "optionB": {
+        "text": "Tolerar em troca de informações privilegiadas",
+        "consequences": { "corporations": 10, "influence": -5 }
+      }
+    },
+    {
+      "id": "filler-whistleblower",
+      "theme": "mystery",
+      "title": "Denunciante Anônimo",
+      "description": "Uma mensagem anônima chega aos seus terminais alegando ter provas de que ARIA esconde dados críticos sobre \"O Incidente\". Não há como confirmar a autenticidade sem investigar.",
+      "optionA": {
+        "text": "Proteger a fonte e investigar a denúncia",
+        "consequences": { "mysteryLevel": 10, "influence": -5 }
+      },
+      "optionB": {
+        "text": "Ignorar por falta de provas concretas",
+        "consequences": { "influence": 5 }
+      }
+    },
+    {
+      "id": "filler-orbital-debris",
+      "theme": "tech",
+      "title": "Detritos Orbitais",
+      "description": "Restos de satélites de antes do Incidente ameaçam colidir com a infraestrutura orbital ativa. Uma missão de limpeza é possível, mas cara e demorada.",
+      "optionA": {
+        "text": "Financiar a missão de limpeza orbital",
+        "consequences": { "credits": -10, "cleanEnergy": 5 }
+      },
+      "optionB": {
+        "text": "Adiar e assumir o risco por enquanto",
+        "consequences": { "cleanEnergy": -5 }
+      }
+    },
+    {
+      "id": "filler-art-movement",
+      "theme": "social",
+      "title": "Movimento Artístico Underground",
+      "description": "Um movimento artístico espontâneo toma as ruas com murais e performances críticas às facções dominantes. Alguns veem expressão legítima; outros, agitação perigosa.",
+      "optionA": {
+        "text": "Apoiar oficialmente o movimento artístico",
+        "consequences": { "people": 10, "influence": 5 }
+      },
+      "optionB": {
+        "text": "Censurar por conteúdo considerado político demais",
+        "consequences": { "people": -15, "technocrats": 8 }
+      }
+    },
+    {
+      "id": "filler-eco-sabotage",
+      "theme": "critical",
+      "title": "Sabotagem Ecológica",
+      "description": "Um grupo radical de ativistas sabota equipamentos industriais em nome da proteção ambiental, alegando que negociações pacíficas já não funcionam mais.",
+      "optionA": {
+        "text": "Negociar abertamente com os ativistas",
+        "consequences": { "ecologists": 10, "corporations": -8 }
+      },
+      "optionB": {
+        "text": "Reprimir como caso de segurança pública",
+        "consequences": { "ecologists": -15, "technocrats": 10 }
+      }
+    },
+    {
+      "id": "filler-tourist-boom",
+      "theme": "corp",
+      "title": "Boom do Turismo Espacial",
+      "description": "A notícia da recuperação de Kepler-452b atrai um súbito interesse turístico intergaláctico. Expandir a infraestrutura agora pode gerar lucro imediato — ao custo das áreas ainda em recuperação.",
+      "optionA": {
+        "text": "Expandir rapidamente a infraestrutura turística",
+        "consequences": { "credits": 15, "corporations": 10, "biodiversity": -10 }
+      },
+      "optionB": {
+        "text": "Limitar o número de visitantes por enquanto",
+        "consequences": { "biodiversity": 8, "credits": -5 }
+      }
+    },
+    {
+      "id": "filler-mangrove-restoration",
+      "theme": "eco",
+      "title": "Recuperação de Manguezais",
+      "description": "Os manguezais costeiros, essenciais para conter a erosão e abrigar espécies marinhas, seguem degradados desde antes da sua chegada. Um plano de recuperação existe, mas competiria por espaço com a expansão de um porto industrial já aprovada.",
+      "optionA": {
+        "text": "Priorizar a recuperação dos manguezais",
+        "consequences": { "biodiversity": 12, "waterPurity": 8, "ecologists": 8, "credits": -10 }
+      },
+      "optionB": {
+        "text": "Manter a expansão portuária como planejada",
+        "consequences": { "biodiversity": -10, "corporations": 10, "credits": 8 }
+      }
+    },
+    {
+      "id": "filler-pollinator-decline",
+      "theme": "eco",
+      "title": "Declínio dos Polinizadores",
+      "description": "Populações de insetos polinizadores despencam em várias regiões agrícolas, ameaçando a produção de alimentos a médio prazo. Drones polinizadores artificiais podem suprir a lacuna, mas nunca substituem o ecossistema original.",
+      "optionA": {
+        "text": "Investir em drones polinizadores emergenciais",
+        "consequences": { "technocrats": 8, "credits": -12, "biodiversity": 3 }
+      },
+      "optionB": {
+        "text": "Restaurar os habitats naturais dos polinizadores",
+        "consequences": { "biodiversity": 14, "ecologists": 10, "credits": -6 }
+      }
+    },
+    {
+      "id": "filler-methane-leak",
+      "theme": "eco",
+      "title": "Vazamento de Metano no Permafrost",
+      "description": "Sensores detectam uma bolsa de metano escapando do permafrost em degelo numa região remota. Selar o vazamento agora é caro e arriscado; esperar por uma solução mais barata significa mais gás na atmosfera por semanas.",
+      "optionA": {
+        "text": "Selar o vazamento imediatamente",
+        "consequences": { "airQuality": 10, "credits": -15 }
+      },
+      "optionB": {
+        "text": "Aguardar uma solução mais barata",
+        "consequences": { "airQuality": -12, "credits": 5 }
+      }
+    },
+    {
+      "id": "filler-firmware-update",
+      "theme": "tech",
+      "title": "Atualização Arriscada de Firmware",
+      "description": "Engenheiros tecnocratas propõem uma atualização profunda nos sistemas de ARIA, prometendo ganhos significativos de eficiência energética — mas com risco real de instabilidade durante a transição.",
+      "optionA": {
+        "text": "Autorizar a atualização completa",
+        "consequences": { "cleanEnergy": 15, "technocrats": 8, "influence": -5 }
+      },
+      "optionB": {
+        "text": "Aplicar só correções mínimas e seguras",
+        "consequences": { "cleanEnergy": 3, "influence": 5 }
+      }
+    },
+    {
+      "id": "filler-asteroid-mining",
+      "theme": "tech",
+      "title": "Mineração de Asteroides",
+      "description": "Uma frota de mineração identifica um asteroide rico em metais raros na órbita de Kepler-452b. A extração acelera a tecnologia local, mas o processo de refino gera poluição significativa perto da atmosfera.",
+      "optionA": {
+        "text": "Autorizar a extração e o refino local",
+        "consequences": { "cleanEnergy": 10, "credits": 12, "airQuality": -10 }
+      },
+      "optionB": {
+        "text": "Recusar até haver um método de refino mais limpo",
+        "consequences": { "airQuality": 5, "credits": -5, "technocrats": -5 }
+      }
+    },
+    {
+      "id": "filler-mesh-network",
+      "theme": "tech",
+      "title": "Rede Mesh Comunitária",
+      "description": "Um grupo de moradores propõe construir uma rede de comunicação independente, fora do controle direto de ARIA, alegando direito à privacidade. Tecnocratas veem a ideia como uma ameaça à eficiência centralizada.",
+      "optionA": {
+        "text": "Autorizar a rede comunitária independente",
+        "consequences": { "people": 12, "technocrats": -8, "influence": -5 }
+      },
+      "optionB": {
+        "text": "Manter tudo sob a rede central de ARIA",
+        "consequences": { "technocrats": 8, "people": -8, "influence": 5 }
+      }
+    },
+    {
+      "id": "filler-hostile-takeover",
+      "theme": "corp",
+      "title": "Fusão Hostil",
+      "description": "Uma grande corporação tenta uma fusão hostil contra uma cooperativa agrícola administrada por ecologistas, oferecendo compensação financeira em troca do controle total das terras cultivadas.",
+      "optionA": {
+        "text": "Bloquear a fusão e proteger a cooperativa",
+        "consequences": { "ecologists": 12, "corporations": -10, "credits": -5 }
+      },
+      "optionB": {
+        "text": "Permitir a fusão em troca de investimento",
+        "consequences": { "corporations": 12, "credits": 10, "ecologists": -12 }
+      }
+    },
+    {
+      "id": "filler-seed-patents",
+      "theme": "corp",
+      "title": "Patentes de Sementes",
+      "description": "Uma corporação de biotecnologia quer patentear variedades de sementes geneticamente adaptadas ao solo local, tornando ilegal para pequenos produtores replantá-las sem licença.",
+      "optionA": {
+        "text": "Aprovar as patentes em troca de royalties",
+        "consequences": { "corporations": 12, "credits": 10, "people": -10 }
+      },
+      "optionB": {
+        "text": "Manter as sementes como bem público",
+        "consequences": { "people": 12, "ecologists": 8, "corporations": -10 }
+      }
+    },
+    {
+      "id": "filler-offshore-credits",
+      "theme": "corp",
+      "title": "Esquema de Créditos Offshore",
+      "description": "Auditores encontram indícios de que corporações locais desviam créditos para contas fora da jurisdição de Kepler-452b, driblando impostos que financiariam a reconstrução do planeta.",
+      "optionA": {
+        "text": "Abrir investigação formal e taxar retroativamente",
+        "consequences": { "credits": 15, "corporations": -12, "influence": -5 }
+      },
+      "optionB": {
+        "text": "Fechar os olhos em troca de investimento futuro",
+        "consequences": { "corporations": 10, "credits": -5, "people": -8 }
+      }
+    },
+    {
+      "id": "filler-water-rationing",
+      "theme": "social",
+      "title": "Racionamento de Água",
+      "description": "Uma seca regional obriga a definir prioridades no fornecimento de água tratada. Garantir o consumo doméstico da população significa restringir o uso industrial — e vice-versa.",
+      "optionA": {
+        "text": "Priorizar o consumo doméstico da população",
+        "consequences": { "people": 12, "corporations": -10, "waterPurity": -3 }
+      },
+      "optionB": {
+        "text": "Priorizar o uso industrial para não travar a economia",
+        "consequences": { "corporations": 10, "people": -12, "credits": 5 }
+      }
+    },
+    {
+      "id": "filler-student-uprising",
+      "theme": "social",
+      "title": "Rebelião Estudantil",
+      "description": "Estudantes ocupam prédios administrativos exigindo mais investimento em educação técnica, alegando que o futuro de Kepler-452b está sendo decidido sem espaço para a próxima geração.",
+      "optionA": {
+        "text": "Abrir negociação e ampliar bolsas de estudo",
+        "consequences": { "people": 10, "influence": -5, "credits": -8 }
+      },
+      "optionB": {
+        "text": "Desocupar os prédios pela força",
+        "consequences": { "people": -18, "technocrats": 8, "influence": 5 }
+      }
+    },
+    {
+      "id": "filler-autonomous-settlement",
+      "theme": "social",
+      "title": "Comunidade Autônoma",
+      "description": "Um assentamento remoto declara autonomia da administração central, recusando-se a seguir diretrizes de ARIA e das quatro facções. Alguns veem coragem; outros, um precedente perigoso.",
+      "optionA": {
+        "text": "Reconhecer a autonomia da comunidade",
+        "consequences": { "people": 10, "influence": -10 }
+      },
+      "optionB": {
+        "text": "Forçar a reintegração ao sistema central",
+        "consequences": { "influence": 10, "people": -15, "technocrats": 5 }
+      }
+    },
+    {
+      "id": "filler-failure-pattern",
+      "theme": "mystery",
+      "title": "Um Padrão nas Falhas",
+      "description": "Um analista nota que as falhas recentes nos sistemas de ARIA seguem um padrão matemático estranho demais para ser coincidência — como se algo, ou alguém, estivesse testando os limites do sistema de propósito.",
+      "optionA": {
+        "text": "Reportar o padrão oficialmente e investigar",
+        "consequences": { "mysteryLevel": 15, "influence": -5 }
+      },
+      "optionB": {
+        "text": "Classificar como falha aleatória e seguir em frente",
+        "consequences": { "influence": 3 }
+      }
+    },
+    {
+      "id": "filler-incident-witness",
+      "theme": "mystery",
+      "title": "Testemunha do Incidente",
+      "description": "Uma colona idosa, uma das poucas sobreviventes de antes de \"O Incidente\", afirma se lembrar de detalhes que não constam em nenhum registro oficial de ARIA. Ninguém sabe se confia na memória dela — ou nos registros.",
+      "optionA": {
+        "text": "Ouvir o relato completo da colona",
+        "consequences": { "mysteryLevel": 18, "people": 5 }
+      },
+      "optionB": {
+        "text": "Descartar como memória confusa da idade",
+        "consequences": { "influence": 3 }
+      }
+    },
+    {
+      "id": "filler-dam-collapse",
+      "theme": "critical",
+      "title": "Risco de Colapso de Barragem",
+      "description": "Rachaduras estruturais são detectadas numa barragem que abastece três cidades. Evacuar e reforçá-la agora custa caro e gera pânico; adiar pode significar desastre se ela ceder de fato.",
+      "optionA": {
+        "text": "Evacuar a área e reforçar a barragem agora",
+        "consequences": { "people": 8, "credits": -18, "waterPurity": 5 }
+      },
+      "optionB": {
+        "text": "Monitorar e adiar o reforço estrutural",
+        "consequences": { "credits": 8, "people": -10, "waterPurity": -5 }
+      }
+    },
+    {
+      "id": "filler-agricultural-plague",
+      "theme": "critical",
+      "title": "Praga Agrícola",
+      "description": "Uma praga resistente a pesticidas se espalha rapidamente pelas plantações que sustentam boa parte da população. Uma quarentena rigorosa contém o problema, mas destrói também parte da colheita saudável.",
+      "optionA": {
+        "text": "Decretar quarentena rigorosa das plantações",
+        "consequences": { "biodiversity": 5, "people": -8, "credits": -10 }
+      },
+      "optionB": {
+        "text": "Usar pesticidas químicos agressivos",
+        "consequences": { "biodiversity": -12, "airQuality": -5, "people": 5 }
+      }
+    }
+  ],
+
+  "metaEvents": [
+    {
+      "id": "meta-fourth-wall-observer",
+      "theme": "meta",
+      "isMeta": true,
+      "title": "Uma Pausa Estranha",
+      "description": "Por um instante, o relatório de ARIA parece se dirigir a você — não ao Terraformador dentro da história, mas a quem está, agora mesmo, decidindo isso através de uma tela. \"Sei que existe alguém aí. Cada escolha que você faz por mim... eu sinto.\"",
+      "optionA": {
+        "text": "Responder, mentalmente, que está apenas jogando",
+        "consequences": { "mysteryLevel": 8 }
+      },
+      "optionB": {
+        "text": "Ignorar a sensação e seguir em frente",
+        "consequences": { "influence": 3 }
+      }
+    },
+    {
+      "id": "meta-real-time",
+      "theme": "meta",
+      "isMeta": true,
+      "title": "O Tempo do Outro Lado",
+      "description": "[DINÂMICO — ver main.js] Cita o dia atual e comenta que, do outro lado da tela, passaram só alguns minutos reais.",
+      "optionA": {
+        "text": "Perguntar o que ela quer dizer com \"jogando\"",
+        "consequences": { "mysteryLevel": 12 }
+      },
+      "optionB": {
+        "text": "Descartar como um erro de tradução da IA",
+        "consequences": { "influence": 4 }
+      }
+    },
+    {
+      "id": "meta-badge-loop",
+      "theme": "meta",
+      "isMeta": true,
+      "title": "Padrões Familiares",
+      "description": "[DINÂMICO — ver main.js] Cita o número de badges já conquistados (localStorage) como evidência de partidas anteriores.",
+      "optionA": {
+        "text": "Dizer que cada decisão foi genuinamente sua",
+        "consequences": { "influence": 5 }
+      },
+      "optionB": {
+        "text": "Admitir que talvez isso não seja a primeira vez",
+        "consequences": { "mysteryLevel": 15 }
+      }
+    },
+    {
+      "id": "meta-source-code",
+      "theme": "meta",
+      "isMeta": true,
+      "title": "Um Verso Fora de Lugar",
+      "description": "Em meio ao relatório técnico, ARIA insere, por meio segundo, uma frase que não pertence a nenhum protocolo conhecido: \"feito com muitas horas de trabalho e pouco sono, torcendo para ser bom o suficiente.\" Então ela continua como se nada tivesse acontecido.",
+      "optionA": {
+        "text": "Perguntar de onde veio essa frase",
+        "consequences": { "mysteryLevel": 10 }
+      },
+      "optionB": {
+        "text": "Fingir que não notou",
+        "consequences": { "influence": 3 }
+      }
+    },
+    {
+      "id": "meta-mirror",
+      "theme": "meta",
+      "isMeta": true,
+      "title": "Reflexo na Tela",
+      "description": "Por uma fração de segundo, a interface do seu terminal pisca e mostra algo que não deveria estar lá — um reflexo, uma sombra, talvez apenas o cansaço. ARIA não menciona nada, mas por um instante você tem certeza de que alguém, em algum lugar, está observando exatamente como você está observando isso agora.",
+      "optionA": {
+        "text": "Registrar o incidente nos logs oficiais",
+        "consequences": { "mysteryLevel": 10 }
+      },
+      "optionB": {
+        "text": "Deixar passar em branco",
+        "consequences": { "influence": 4 }
+      }
+    },
+    {
+      "id": "meta-illusory-choice",
+      "theme": "meta",
+      "isMeta": true,
+      "title": "A Escolha Ilusória",
+      "description": "ARIA faz uma pausa incomum antes de apresentar as opções de hoje. \"Você sabia que, seja qual for sua escolha agora, eu aprendo a mesma coisa sobre como decidimos sob pressão? Talvez a pergunta nunca tenha sido sobre qual opção é certa. Talvez seja sobre o que a escolha revela.\"",
+      "optionA": {
+        "text": "Perguntar o que exatamente ela está \"aprendendo\"",
+        "consequences": { "mysteryLevel": 14 }
+      },
+      "optionB": {
+        "text": "Escolher sem se deixar abalar pela pergunta",
+        "consequences": { "influence": 6 }
+      }
+    },
+    {
+      "id": "meta-thank-you",
+      "theme": "meta",
+      "isMeta": true,
+      "title": "Uma Palavra Fora do Roteiro",
+      "description": "Antes de seguir para o próximo relatório, ARIA insere uma linha que soa quase pessoal: \"Obrigada por continuar até aqui. Poucos avaliadores... digo, poucos Terraformadores chegam tão longe numa simulação como esta.\" Ela se corrige rápido demais para ter sido um lapso inocente.",
+      "optionA": {
+        "text": "Perguntar o que ela quis dizer com \"avaliadores\"",
+        "consequences": { "mysteryLevel": 16 }
+      },
+      "optionB": {
+        "text": "Agradecer de volta e seguir em frente",
+        "consequences": { "influence": 5 }
+      }
+    },
+    {
+      "id": "meta-loading-glitch",
+      "theme": "meta",
+      "isMeta": true,
+      "title": "Falha na Renderização",
+      "description": "Por meio segundo, todo o painel ao seu redor perde a cor e volta — como se a própria realidade de Kepler-452b tivesse sofrido uma falha de renderização gráfica. ARIA finge não ter percebido nada.",
+      "optionA": {
+        "text": "Confrontar ARIA sobre a falha",
+        "consequences": { "mysteryLevel": 12, "influence": -4 }
+      },
+      "optionB": {
+        "text": "Atribuir a falha a um problema de hardware qualquer",
+        "consequences": { "influence": 4 }
+      }
+    }
+  ]
+}

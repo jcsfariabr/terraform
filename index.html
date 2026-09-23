@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TERRAFORM: O Resgate do Planeta Azul</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="bg-gradient" aria-hidden="true"></div>
+  <div class="starfield" aria-hidden="true"></div>
+
+  <!-- Toasts de conquista desbloqueada-->
+  <div id="achievement-toast-container" class="achievement-toast-container" aria-live="polite"></div>
+
+  <!-- Aviso de rotação: em celular (retrato), bloqueia o jogo e pede paisagem -->
+  <div id="rotate-device-notice" class="rotate-device-notice" aria-hidden="true">
+    <div class="rotate-device-icon">📱</div>
+    <p class="rotate-device-text">Gire seu dispositivo para o modo paisagem para jogar TERRAFORM.</p>
+  </div>
+
+  <!-- LOADING SCREEN -->
+  <section id="screen-loading" class="screen active">
+    <div class="loading-content fade-in">
+      <div class="loading-planet"></div>
+      <h1 class="glow-title">TERRAFORM</h1>
+      <p class="loading-text">Inicializando sistemas de terraformação...</p>
+    </div>
+  </section>
+
+  <!-- MENU PRINCIPAL -->
+  <section id="screen-menu" class="screen">
+    <div class="menu-content fade-in">
+      <h1 class="glow-title">TERRAFORM</h1>
+      <p class="subtitle">O Resgate do Planeta Azul</p>
+      <p class="tagline">"Você não está salvando um planeta - está decidindo qual tipo de planeta ele será."</p>
+
+      <div class="menu-buttons">
+        <button id="btn-new-game" class="btn btn-primary">Novo Jogo</button>
+        <button id="btn-continue" class="btn btn-secondary" disabled>Continuar</button>
+      </div>
+
+      <label class="tutorial-toggle" for="chk-tutorial">
+        <input type="checkbox" id="chk-tutorial">
+        <span>Mostrar tutorial ao começar um Novo Jogo</span>
+      </label>
+
+      <div class="menu-secondary-buttons">
+        <button id="btn-achievements" class="btn btn-secondary btn-small">🏆 Conquistas</button>
+        <button id="btn-about" class="btn btn-secondary btn-small">ℹ️ Sobre</button>
+      </div>
+
+      <p class="menu-footer">Kepler-452b &middot; Ano 2147</p>
+      <p class="menu-authorship">TERRAFORM: O Resgate do Planeta Azul &copy; 2026 Julio Cesar Siqueira Faria. Todos os direitos reservados.</p>
+    </div>
+  </section>
+
+  <!-- POPUP: CONQUISTAS -->
+  <div id="achievements-modal" class="modal-overlay">
+    <div class="modal-box achievements-box fade-in" role="dialog" aria-modal="true" aria-labelledby="achievements-modal-title" tabindex="-1">
+      <h2 id="achievements-modal-title" class="modal-title">🏆 Conquistas</h2>
+      <p id="achievements-progress" class="achievements-progress">0/0 desbloqueadas</p>
+      <div id="achievements-list" class="achievements-list"></div>
+      <button id="btn-achievements-close" class="btn btn-primary">Fechar</button>
+    </div>
+  </div>
+
+  <!-- POPUP: SOBRE / CRÉDITOS -->
+  <div id="about-modal" class="modal-overlay">
+    <div class="modal-box about-box fade-in" role="dialog" aria-modal="true" aria-labelledby="about-modal-title" tabindex="-1">
+      <h2 id="about-modal-title" class="modal-title">ℹ️ Sobre o Jogo</h2>
+      <div class="about-content">
+        <p><strong>TERRAFORM: O Resgate do Planeta Azul</strong> foi criado por <strong>Julio Cesar Siqueira Faria</strong> para o Concurso CROPE 2026.</p>
+        <p class="about-note">Todo o código, narrativa, eventos e design são autorais. As faixas e efeitos sonoros abaixo são de terceiros, livres de direitos autorais para este uso — o crédito de cada um vai para seu respectivo autor.</p>
+        <h3 class="about-subtitle">Trilha sonora e efeitos</h3>
+        <table class="credits-table">
+          <thead>
+            <tr><th>Faixa</th><th>Autor</th></tr>
+          </thead>
+          <tbody id="credits-table-body"></tbody>
+        </table>
+      </div>
+      <button id="btn-about-close" class="btn btn-primary">Fechar</button>
+    </div>
+  </div>
+
+  <!-- TUTORIAL: diálogo com ARIA antes do Dia 1, opcional via checkbox no menu -->
+  <section id="screen-tutorial" class="screen">
+    <div class="tutorial-content fade-in">
+      <div id="tutorial-panel" class="hud-card tutorial-panel">
+        <div id="tutorial-avatar" class="character-avatar" aria-hidden="true">🤖</div>
+        <div class="hud-header--purple-dark">
+          <h2 id="tutorial-title" class="event-title">ARIA</h2>
+          <p id="tutorial-text" class="event-description" aria-live="polite"></p>
+        </div>
+      </div>
+      <p id="tutorial-step-count" class="tutorial-step-count"></p>
+      <div class="tutorial-controls">
+        <button id="btn-tutorial-skip" class="btn btn-secondary">Pular tutorial</button>
+        <button id="btn-tutorial-next" class="btn btn-primary">Avançar</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- GAMEPLAY SCREEN -->
+  <section id="screen-gameplay" class="screen">
+
+    <!-- O planeta fica atrás de tudo, mudando de acordo com o estado do mundo -->
+    <div class="planet-backdrop" aria-hidden="true">
+      <canvas id="planet-canvas" width="560" height="560"></canvas>
+    </div>
+
+    <!-- Céu animado: estrelas se movendo, sol e luas cruzando o fundo -->
+    <div class="sky-layer" aria-hidden="true">
+      <div class="celestial sun"></div>
+      <div class="celestial moon moon-a"></div>
+      <div class="celestial moon moon-b"></div>
+      <div class="sky-star" style="--x:6%; --y:10%; --d:22s;"></div>
+      <div class="sky-star" style="--x:14%; --y:28%; --d:17s;"></div>
+      <div class="sky-star" style="--x:22%; --y:6%; --d:26s;"></div>
+      <div class="sky-star" style="--x:31%; --y:40%; --d:19s;"></div>
+      <div class="sky-star" style="--x:9%; --y:55%; --d:24s;"></div>
+      <div class="sky-star" style="--x:44%; --y:15%; --d:20s;"></div>
+      <div class="sky-star" style="--x:52%; --y:60%; --d:28s;"></div>
+      <div class="sky-star" style="--x:61%; --y:8%; --d:18s;"></div>
+      <div class="sky-star" style="--x:68%; --y:34%; --d:23s;"></div>
+      <div class="sky-star" style="--x:76%; --y:52%; --d:16s;"></div>
+      <div class="sky-star" style="--x:83%; --y:20%; --d:25s;"></div>
+      <div class="sky-star" style="--x:91%; --y:44%; --d:21s;"></div>
+      <div class="sky-star" style="--x:38%; --y:72%; --d:27s;"></div>
+      <div class="sky-star" style="--x:57%; --y:80%; --d:19s;"></div>
+      <div class="sky-star" style="--x:73%; --y:74%; --d:22s;"></div>
+      <div class="sky-star" style="--x:16%; --y:82%; --d:24s;"></div>
+      <div class="sky-star" style="--x:88%; --y:78%; --d:20s;"></div>
+    </div>
+
+    <div class="gameplay-grid fade-in">
+
+      <!-- Índices do Planeta -->
+      <div class="hud-card hud-card--metrics">
+        <div class="hud-card-header hud-header--green">Índices do Planeta</div>
+        <div class="hud-card-body">
+          <div class="metric-row">
+            <span class="metric-label"><span class="icon-chip icon-chip--bio" aria-hidden="true">🌱</span>Biodiversidade</span>
+            <div class="bar-track"><div id="bar-biodiversity" class="bar-fill metric-bio"></div></div>
+          </div>
+          <div class="metric-row">
+            <span class="metric-label"><span class="icon-chip icon-chip--air" aria-hidden="true">💨</span>Qualidade do Ar</span>
+            <div class="bar-track"><div id="bar-air" class="bar-fill metric-air"></div></div>
+          </div>
+          <div class="metric-row">
+            <span class="metric-label"><span class="icon-chip icon-chip--water" aria-hidden="true">💧</span>Pureza da Água</span>
+            <div class="bar-track"><div id="bar-water" class="bar-fill metric-water"></div></div>
+          </div>
+          <div class="metric-row">
+            <span class="metric-label"><span class="icon-chip icon-chip--energy" aria-hidden="true">⚡</span>Energia Limpa</span>
+            <div class="bar-track"><div id="bar-energy" class="bar-fill metric-energy"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Personagem + Enunciado -->
+      <div id="event-panel" class="hud-card hud-card--character">
+        <div id="character-avatar" class="character-avatar" aria-hidden="true">🧑‍🚀</div>
+        <div class="hud-header--purple-dark">
+          <h2 id="event-title" class="event-title">Título do evento</h2>
+          <p id="event-description" class="event-description" aria-live="polite">Descrição do evento.</p>
+        </div>
+      </div>
+
+      <!-- Controles: som, recomeçar, menu / dia / estado do mundo -->
+      <div class="hud-card hud-card--controls">
+        <div class="controls-row controls-row--white">
+          <button id="btn-sound-toggle" class="icon-btn" title="Som" aria-label="Ativar ou desativar o som">🔊</button>
+          <button id="btn-restart" class="icon-btn" title="Recomeçar" aria-label="Recomeçar a partida do Dia 1">🔁</button>
+          <button id="btn-back-to-menu" class="icon-btn" title="Voltar ao Menu" aria-label="Voltar ao menu principal">🏠</button>
+        </div>
+        <div class="controls-row controls-row--cyan">
+          <span id="day-counter" class="day-counter">Dia 1 / 40</span>
+        </div>
+        <div class="controls-row controls-row--yellow">
+          <span id="health-status" class="health-status" aria-live="polite">Melhorando</span>
+        </div>
+      </div>
+
+      <!-- Facções + Recursos -->
+      <div class="hud-card hud-card--factions">
+        <div class="hud-card-header hud-header--red">Facções</div>
+        <div class="faction-circles">
+          <div class="faction-circle-wrap">
+            <div id="circle-technocrats" class="faction-circle faction-circle--technocrats"></div>
+            <span class="faction-circle-label">🤖 Tecnocratas</span>
+          </div>
+          <div class="faction-circle-wrap">
+            <div id="circle-ecologists" class="faction-circle faction-circle--ecologists"></div>
+            <span class="faction-circle-label">🌿 Ecologistas</span>
+          </div>
+          <div class="faction-circle-wrap">
+            <div id="circle-corporations" class="faction-circle faction-circle--corporations"></div>
+            <span class="faction-circle-label">💰 Corporações</span>
+          </div>
+          <div class="faction-circle-wrap">
+            <div id="circle-people" class="faction-circle faction-circle--people"></div>
+            <span class="faction-circle-label">👥 Povo</span>
+          </div>
+        </div>
+        <div class="hud-card-header hud-header--blue">Recursos</div>
+        <div class="hud-card-body">
+          <div class="metric-row">
+            <span class="metric-label"><span class="icon-chip icon-chip--credits" aria-hidden="true">💰</span>Créditos</span>
+            <div class="bar-track"><div id="bar-credits" class="bar-fill metric-credits"></div></div>
+          </div>
+          <div class="metric-row">
+            <span class="metric-label"><span class="icon-chip icon-chip--energy" aria-hidden="true">⚙️</span>Energia</span>
+            <div class="bar-track"><div id="bar-resource-energy" class="bar-fill metric-resource-energy"></div></div>
+          </div>
+          <div class="metric-row">
+            <span class="metric-label"><span class="icon-chip icon-chip--influence" aria-hidden="true">📊</span>Influência</span>
+            <div class="bar-track"><div id="bar-influence" class="bar-fill metric-influence"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Respostas -->
+      <div class="hud-card hud-card--answers">
+        <button id="btn-option-a" class="answer-btn">Opção A</button>
+        <button id="btn-option-b" class="answer-btn">Opção B</button>
+      </div>
+
+    </div>
+
+    <!-- Feedback de consequência da última decisão -->
+    <div id="consequence-toast" class="consequence-toast" role="status" aria-live="polite"></div>
+
+    <!-- Vinheta vermelha exibida quando o planeta cruza para "Colapsando" -->
+    <div id="crisis-vignette" class="crisis-vignette" aria-hidden="true"></div>
+
+    <!-- Cartão cinematográfico de transição de ato -->
+    <div id="act-transition" class="act-transition" aria-hidden="true">
+      <p class="act-transition-num">ATO II</p>
+      <p class="act-transition-name">Nome do Ato</p>
+    </div>
+  </section>
+
+  <!-- ENDING SCREEN -->
+  <section id="screen-ending" class="screen">
+    <div class="ending-content fade-in">
+      <p id="ending-badge" class="ending-badge"><span class="icon-chip" aria-hidden="true">🎖️</span><span id="ending-badge-text">Badge</span></p>
+      <h1 id="ending-name" class="glow-title ending-title">Nome do Final</h1>
+      <p id="ending-description" class="ending-description">Descrição do final.</p>
+
+      <div class="ending-stats">
+        <div class="ending-stat">
+          <span class="ending-stat-label"><span class="icon-chip icon-chip--bio" aria-hidden="true">🌱</span>Biodiversidade</span>
+          <span id="ending-stat-bio" class="ending-stat-value">--%</span>
+        </div>
+        <div class="ending-stat">
+          <span class="ending-stat-label"><span class="icon-chip icon-chip--air" aria-hidden="true">💨</span>Qualidade do Ar</span>
+          <span id="ending-stat-air" class="ending-stat-value">--%</span>
+        </div>
+        <div class="ending-stat">
+          <span class="ending-stat-label"><span class="icon-chip icon-chip--water" aria-hidden="true">💧</span>Pureza da Água</span>
+          <span id="ending-stat-water" class="ending-stat-value">--%</span>
+        </div>
+        <div class="ending-stat">
+          <span class="ending-stat-label"><span class="icon-chip icon-chip--energy" aria-hidden="true">⚡</span>Energia Limpa</span>
+          <span id="ending-stat-energy" class="ending-stat-value">--%</span>
+        </div>
+      </div>
+
+      <p id="ending-message" class="ending-message">"Mensagem final."</p>
+
+      <p id="ending-badges-total" class="ending-badges-total"></p>
+
+      <div class="menu-buttons">
+        <button id="btn-play-again" class="btn btn-primary">Jogar Novamente</button>
+        <button id="btn-ending-menu" class="btn btn-secondary">Menu</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- MINIGAME MODAL -->
+  <div id="minigame-modal" class="modal-overlay">
+    <div class="modal-box minigame-box fade-in" role="dialog" aria-modal="true" aria-labelledby="minigame-title" tabindex="-1">
+      <h2 id="minigame-title" class="modal-title">Minigame</h2>
+
+      <div class="minigame-timer-track">
+        <div id="minigame-timer-bar" class="minigame-timer-fill"></div>
+      </div>
+
+      <div id="minigame-area" class="minigame-area"></div>
+
+      <div class="minigame-footer">
+        <span id="minigame-status" class="minigame-status" aria-live="polite"></span>
+        <div class="minigame-footer-buttons">
+          <button id="btn-minigame-confirm" class="btn btn-small" style="display: none;">Concluir</button>
+          <button id="btn-minigame-skip" class="btn btn-secondary btn-small">Pular</button>
+        </div>
+      </div>
+
+      <!-- Tela de resultado, mostrada ao final antes de fechar o modal -->
+      <div id="minigame-result" class="minigame-result" style="display: none;" aria-live="polite">
+        <p id="minigame-result-title" class="minigame-result-title">Resultado</p>
+        <p id="minigame-result-detail" class="minigame-result-detail"></p>
+        <p id="minigame-result-bonus" class="minigame-result-bonus"></p>
+        <button id="btn-minigame-continue" class="btn btn-primary">Continuar</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="main.js"></script>
+</body>
+</html>
