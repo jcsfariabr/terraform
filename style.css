@@ -1,7 +1,5 @@
 ﻿/* ==========================================================================
-   TERRAFORM — Identidade Visual (Etapa 7: redesign — sci-fi cinematográfico
-   + ilustrativo: fundo estelar, glassmorphism, planeta maior e animado,
-   temas de cor por ato/final, micro-interações)
+   TERRAFORM — Identidade Visual
    Paleta: Ciano #00D4FF | Verde Neon #00FF00 | Alerta #FF0040
    ========================================================================== */
 
@@ -493,7 +491,8 @@ body {
   }
 
   .character-avatar {
-    font-size: 6em;
+    width: 6em;
+    height: 6em;
     padding: 12px 0 6px;
   }
 }
@@ -570,15 +569,17 @@ body {
   animation: glitch-flicker 2.4s steps(2, end) infinite;
 }
 
+/* O personagem é um <img> (ícone 3D do Microsoft Fluent Emoji, ver
+   CHARACTER_SKINS em main.js) no lugar do emoji nativo do dispositivo —
+   garante a mesma aparência em qualquer sistema operacional/navegador. */
 .character-avatar {
-  text-align: center;
-  font-size: 10.69em;
+  display: block;
+  margin: 0 auto;
+  width: 10.69em;
+  height: 10.69em;
   padding: 21.38px 0 9.5px;
+  object-fit: contain;
   filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.4));
-  /* Força o emoji do personagem a renderizar com a mesma arte em qualquer
-     dispositivo (Noto Color Emoji, via Google Fonts) em vez do conjunto de
-     emoji nativo do sistema operacional/navegador de quem está jogando. */
-  font-family: 'Noto Color Emoji', sans-serif;
 }
 
 .hud-header--purple-dark {
@@ -820,7 +821,8 @@ body {
 }
 
 .tutorial-panel .character-avatar {
-  font-size: 4.5em;
+  width: 4.5em;
+  height: 4.5em;
   padding: 16px 0 4px;
 }
 

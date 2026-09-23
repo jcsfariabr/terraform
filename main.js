@@ -1,87 +1,3 @@
-/* ==========================================================================
-   TERRAFORM — main.js
-   3ª revisão (pós-feedback de playtest — mais dias, minigames únicos,
-   confronto com ARIA reduzido a uma única chance, finais mais alcançáveis):
-   - Jogo estendido de 30 para 40 dias (`TOTAL_DAYS`), com 6 novos eventos
-     autorais de dia fixo: 3 novos slots de minigame (reforest no Dia 4,
-     energy no Dia 19, carbon no Dia 22), os 2 minigames novos (wildfire no
-     Dia 28, summit no Dia 31) e o evento decisivo único "A Confrontação"
-     (Dia 34). +8 eventos de preenchimento novos.
-   - `ariaQuestioned` (o "confrontar ARIA") deixou de ser concedido por ~10
-     eventos diferentes espalhados pelo jogo — agora só o evento "A
-     Confrontação" (Dia 34) concede esse ponto. `mysteryLevel` continua
-     acumulando normalmente via vários eventos de sabor/investigação, mas
-     o Final Secreto exige as DUAS coisas: `mysteryLevel >= 30` (curiosidade
-     ao longo do jogo) e `ariaQuestioned >= 1` (a decisão única e decisiva).
-   - Cada um dos 7 minigames agora só é jogado uma vez por partida
-     (`usedMinigameTypes` em GameState + checagem em `makeDecision`); os
-     eventos de preenchimento que antes también linkavam para reforest/
-     water/energy/carbon perderam esse vínculo e viraram só narrativa.
-   - Todo minigame agora tem um botão "Concluir" que avalia o progresso
-     atual e encerra na hora, sem esperar o timer (antes só o de Água Limpa
-     tinha isso). Corrigido também um bug latente: o timer (`minigameInterval`)
-     não era cancelado ao concluir cedo, então continuava contando e podia
-     dar uma segunda chamada de resultado depois.
-   - 2 minigames novos: Contenção de Incêndio (fogo se espalha por um grid
-     a cada tick, clique para apagar antes que tome conta) e Cúpula das
-     Facções (4 medidores de satisfação decaem com o tempo, clique para
-     acalmar cada facção antes do prazo acabar).
-   - `determineEnding()` recalibrado de novo: os finais especiais foram
-     reduzidos para 1-3 condições cada (eram até 4), porque mesmo após o
-     primeiro afrouxamento jogadores reais ainda terminavam quase sempre em
-     "Meio Termo".
-   Revisão anterior (mantida):
-   - Limiares de `determineEnding()` afrouxados: os 4 finais especiais
-     (Verde, Corporativo, Tecnológico, Secreto) exigiam combinações quase
-     inatingíveis com jogo real — um playthrough manual e deliberado para
-     "O Ouro Verde" terminava em "balanced" por faltar poucos pontos de
-     crédito. Cada final continua exigindo uma estratégia clara (não sai
-     por acidente jogando neutro), mas não exige mais otimização quase
-     perfeita nos 30 dias.
-   - Corrigido bug real do minigame de Restauração Genética: `.genetic-tile-
-     inner` era um `<span>` (inline por padrão), e a propriedade `transform`
-     não tem NENHUM efeito em elementos inline não substituídos — por isso
-     as cartas nunca viravam visualmente, mesmo a classe `flipped` sendo
-     aplicada corretamente pelo JS. Corrigido com `display: block` (ver
-     style.css). Bug confirmado e a correção validada no Chrome real.
-   - Reflorestamento Rápido voltou a usar quadrados em vez de hexágonos
-     (feedback: hexágono não ficou bom visualmente); a árvore (🌳) ao
-     plantar foi mantida.
-   Revisão de imersão e volume de conteúdo (mantida):
-   - Pool de eventos quadruplicado: FILLER_EVENTS foi de 9 para 36 eventos
-     (4x), cobrindo mais variedade temática (eco/tech/corp/social/mystery/
-     critical) e mais ganchos de minigame. Um novo pool META_EVENTS (8
-     eventos) foi adicionado só para momentos de "quarta parede" — ARIA se
-     dirigindo a quem está jogando, fora da ficção — sorteados com ~22% de
-     chance a partir do dia 4 em vez de um evento de preenchimento comum.
-   - Feedback de consequência: toda decisão sem minigame mostra um toast
-     flutuante com os deltas exatos aplicados (`showConsequenceToast`)
-     antes de avançar o dia.
-   - Tremor de tela + vinheta vermelha (`checkCriticalShock`) quando uma
-     decisão faz a saúde geral do planeta cruzar para o estado "Colapsando".
-   - Cartão cinematográfico de transição de ato (`maybeShowActTransition`)
-     ao entrar no Ato II (dia 11) e Ato III (dia 24).
-   - Texto de evento revelado com efeito de máquina de escrever
-     (`typewriterEffect`, via setInterval — ver nota sobre rAF abaixo).
-   - Leve parallax do planeta de fundo seguindo o mouse, para profundidade.
-   Revisão anterior (mantida):
-   - Jogo estendido de 20 para 30 dias (`TOTAL_DAYS`), com eventos autorais
-     de dia fixo e 2 eventos de conexão narrativa com `description`/
-     `consequences` dinâmicos (funções que recebem o GameState).
-   - Minigames mostram uma tela de "Resultado" (pontuação + bônus) com
-     botão "Continuar" antes de fechar o modal (`showMinigameResult`).
-   - Toda animação contínua (queda de partículas do Filtro de Carbono,
-     nuvens do planeta) usa `setInterval` com posição calculada por tempo
-     decorrido, nunca `requestAnimationFrame` nem `animationend`: neste
-     ambiente de testes automatizado, rAF nunca dispara e `animationend`
-     é pouco confiável para elementos criados dinamicamente. CSS
-     `@keyframes`/`transition` continuam usados livremente para efeitos
-     puramente visuais (funcionam normalmente em navegadores reais).
-   Os dados dos eventos abaixo têm uma cópia legível/editável em events.json
-   (os eventos dinâmicos ficam documentados lá em texto, já que JSON não
-   pode representar funções).
-   ========================================================================== */
-
 const SAVE_KEY = 'terraform_save';
 const BADGES_KEY = 'terraform_badges';
 const SOUND_KEY = 'terraform_sound';
@@ -267,7 +183,7 @@ const ACHIEVEMENTS = [
    padrão na primeira vez que o jogo é aberto neste navegador).
    --------------------------------------------------------------------- */
 
-const TUTORIAL_AVATAR = '🤖';
+const TUTORIAL_AVATAR = 'https://cdn.jsdelivr.net/gh/microsoft/fluentui-emoji@main/assets/Robot/3D/robot_3d.png';
 
 const TUTORIAL_STEPS = [
   {
@@ -302,19 +218,25 @@ const TUTORIAL_STEPS = [
 
 /* ---------------------------------------------------------------------
    Skins do personagem — trocam conforme a categoria do evento atual.
+   Usa os ícones 3D do Microsoft Fluent Emoji (via jsDelivr, servindo
+   direto do repositório oficial microsoft/fluentui-emoji) no lugar do
+   emoji nativo do dispositivo, para uma aparência consistente em
+   qualquer sistema operacional/navegador.
    --------------------------------------------------------------------- */
 
+const FLUENT_EMOJI_BASE = 'https://cdn.jsdelivr.net/gh/microsoft/fluentui-emoji@main/assets';
+
 const CHARACTER_SKINS = {
-  intro: '🧑‍🚀',
-  eco: '🧑‍🌾',
-  tech: '🧑‍💻',
-  corp: '🧑‍💼',
-  social: '🧑‍🤝‍👩',
-  critical: '🧑‍✈️',
-  mystery: '🕵️',
-  meta: '👁️',
+  intro: `${FLUENT_EMOJI_BASE}/Astronaut/Default/3D/astronaut_3d_default.png`,
+  eco: `${FLUENT_EMOJI_BASE}/Farmer/Default/3D/farmer_3d_default.png`,
+  tech: `${FLUENT_EMOJI_BASE}/Technologist/Default/3D/technologist_3d_default.png`,
+  corp: `${FLUENT_EMOJI_BASE}/Office%20worker/Default/3D/office_worker_3d_default.png`,
+  social: `${FLUENT_EMOJI_BASE}/People%20hugging/3D/people_hugging_3d.png`,
+  critical: `${FLUENT_EMOJI_BASE}/Pilot/Default/3D/pilot_3d_default.png`,
+  mystery: `${FLUENT_EMOJI_BASE}/Detective/Default/3D/detective_3d_default.png`,
+  meta: `${FLUENT_EMOJI_BASE}/Eye/3D/eye_3d.png`,
 };
-const DEFAULT_CHARACTER_SKIN = '🧑‍🚀';
+const DEFAULT_CHARACTER_SKIN = CHARACTER_SKINS.intro;
 
 /* ---------------------------------------------------------------------
    Som — sintetizado via Web Audio API (sem arquivos externos), com
@@ -2048,7 +1970,7 @@ class TerraformGame {
   runTutorial(onComplete) {
     this.tutorialIndex = 0;
     this.tutorialOnComplete = onComplete;
-    document.getElementById('tutorial-avatar').textContent = TUTORIAL_AVATAR;
+    document.getElementById('tutorial-avatar').src = TUTORIAL_AVATAR;
     this.showTutorialStep();
   }
 
@@ -2249,7 +2171,7 @@ class TerraformGame {
       ? event.description(this.gameState)
       : event.description;
 
-    document.getElementById('character-avatar').textContent =
+    document.getElementById('character-avatar').src =
       CHARACTER_SKINS[event.theme] || DEFAULT_CHARACTER_SKIN;
     document.getElementById('event-title').textContent = event.title;
     this.typewriterEffect(document.getElementById('event-description'), description);
