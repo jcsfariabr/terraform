@@ -13,7 +13,7 @@
   para reconstruir Kepler-452b depois de "O Incidente".
 </p>
 
-> 🕹️ [Jogue agora](https://SEU-LINK-AQUI) | 📖 [Guia dos Finais](GUIA-DOS-FINAIS.md) | 📜 [Licença](LICENSE)
+> 🕹️ [Jogue agora](https://jcsfariabr.github.io/terraform/) | 📖 [Guia dos Finais](GUIA-DOS-FINAIS.md) | 📜 [Licença](LICENSE)
 
 <hr>
 
@@ -64,7 +64,7 @@ como projeto autoral para o **Concurso CROPE 2026**.
 
 ## 🕹️ Como jogar
 
-**[▶️ Jogue direto no navegador aqui](https://SEU-LINK-AQUI)** — não
+**[▶️ Jogue direto no navegador aqui](https://jcsfariabr.github.io/terraform/)** — não
 precisa instalar nada.
 
 ## 🌱 Mecânicas principais
