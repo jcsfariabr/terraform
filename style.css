@@ -575,6 +575,10 @@ body {
   font-size: 10.69em;
   padding: 21.38px 0 9.5px;
   filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.4));
+  /* Força o emoji do personagem a renderizar com a mesma arte em qualquer
+     dispositivo (Noto Color Emoji, via Google Fonts) em vez do conjunto de
+     emoji nativo do sistema operacional/navegador de quem está jogando. */
+  font-family: 'Noto Color Emoji', sans-serif;
 }
 
 .hud-header--purple-dark {
