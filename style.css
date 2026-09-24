@@ -1816,6 +1816,50 @@ body.shake-active .gameplay-grid {
   animation: rotate-hint 1.6s ease-in-out infinite;
 }
 
+/* ---------- Aviso de tela cheia (só celular, ver initMobileFullscreen em
+   main.js — o gate de "é celular" é feito em JS, não aqui, então esta
+   regra fica igual em qualquer tamanho de tela; JS nunca adiciona
+   .active fora do celular). Fica ATRÁS do aviso de rotação (z-index menor)
+   pra girar o aparelho sempre ganhar prioridade se os dois se aplicassem. */
+.fullscreen-prompt {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 9990;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  background: rgba(5, 8, 16, 0.94);
+  border: none;
+  text-align: center;
+  padding: 24px;
+  cursor: pointer;
+  font-family: var(--font-body);
+}
+
+.fullscreen-prompt.active {
+  display: flex;
+}
+
+.fullscreen-prompt-icon {
+  font-size: 3.4em;
+  color: var(--color-primary);
+  animation: fullscreen-hint-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes fullscreen-hint-pulse {
+  0%, 100% { transform: scale(1); opacity: 0.85; }
+  50% { transform: scale(1.15); opacity: 1; }
+}
+
+.fullscreen-prompt-text {
+  color: var(--text-light);
+  font-size: 1.05em;
+  max-width: 320px;
+  line-height: 1.5;
+}
+
 .rotate-device-text {
   color: var(--text-light);
   font-size: 1.05em;

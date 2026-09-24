@@ -23,6 +23,14 @@
     <p class="rotate-device-text">Gire seu dispositivo para o modo paisagem para jogar TERRAFORM.</p>
   </div>
 
+  <!-- Aviso de tela cheia: só no celular. Some assim que a tela cheia volta
+       (ver initMobileFullscreen em main.js) — tocar em qualquer lugar aqui
+       tenta reativar. -->
+  <button type="button" id="fullscreen-prompt" class="fullscreen-prompt" aria-label="Tocar para voltar à tela cheia">
+    <div class="fullscreen-prompt-icon">⛶</div>
+    <p class="fullscreen-prompt-text">Toque na tela para voltar ao modo tela cheia.</p>
+  </button>
+
   <!-- LOADING SCREEN -->
   <section id="screen-loading" class="screen active">
     <div class="loading-content fade-in">

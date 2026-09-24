@@ -3409,6 +3409,57 @@ function saveMinigameWins(wins) {
 
 let game;
 
+/* ---------------------------------------------------------------------
+   Tela cheia no celular — só entra quando o jogador clica em Novo Jogo ou
+   Continuar (precisa ser dentro do próprio gesto de clique, senão o
+   navegador recusa o pedido), e se ela cair (o jogador saiu manualmente,
+   trocou de app e voltou, etc.) mostra um aviso pedindo pra tocar na tela
+   de novo — em vez de simplesmente ficar fora da tela cheia sem avisar. */
+let mobileFullscreenRequested = false;
+
+function isMobileLayout() {
+  return window.matchMedia('(max-width: 760px), (max-height: 520px) and (orientation: landscape)').matches;
+}
+
+function isFullscreenActive() {
+  return !!(document.fullscreenElement || document.webkitFullscreenElement);
+}
+
+function requestMobileFullscreen() {
+  if (!isMobileLayout() || isFullscreenActive()) return;
+  const el = document.documentElement;
+  const request = el.requestFullscreen || el.webkitRequestFullscreen;
+  if (!request) return;
+  mobileFullscreenRequested = true;
+  try {
+    const result = request.call(el);
+    if (result && typeof result.catch === 'function') result.catch(() => {});
+  } catch (e) {
+    // Alguns navegadores recusam sem aviso (ex.: fora de um gesto direto
+    // do usuário) — nada a fazer além de deixar o aviso de toque cuidar.
+  }
+}
+
+function initMobileFullscreen() {
+  const prompt = document.getElementById('fullscreen-prompt');
+  if (!prompt) return;
+
+  function syncPrompt() {
+    const shouldShow = mobileFullscreenRequested && isMobileLayout() && !isFullscreenActive();
+    prompt.classList.toggle('active', shouldShow);
+  }
+
+  document.addEventListener('fullscreenchange', syncPrompt);
+  document.addEventListener('webkitfullscreenchange', syncPrompt);
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') syncPrompt();
+  });
+
+  prompt.addEventListener('click', () => {
+    requestMobileFullscreen();
+  });
+}
+
 function initMenu() {
   const continueBtn = document.getElementById('btn-continue');
   continueBtn.disabled = !hasSavedGame();
@@ -3419,6 +3470,7 @@ function initMenu() {
   tutorialCheckbox.checked = localStorage.getItem(TUTORIAL_SEEN_KEY) === null;
 
   document.getElementById('btn-new-game').addEventListener('click', () => {
+    requestMobileFullscreen();
     if (tutorialCheckbox.checked) {
       showScreen(Screens.TUTORIAL);
       game.runTutorial(() => {
@@ -3432,6 +3484,7 @@ function initMenu() {
   });
 
   continueBtn.addEventListener('click', () => {
+    requestMobileFullscreen();
     game.continueGame();
     showScreen(Screens.GAMEPLAY);
   });
@@ -3660,6 +3713,7 @@ function init() {
   initHudPager();
   initEnding();
   initEscapeToClose();
+  initMobileFullscreen();
   showScreen(Screens.LOADING);
   setTimeout(() => {
     showScreen(Screens.MENU);
