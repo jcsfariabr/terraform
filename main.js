@@ -238,6 +238,20 @@ const CHARACTER_SKINS = {
 };
 const DEFAULT_CHARACTER_SKIN = CHARACTER_SKINS.intro;
 
+/* Os avatares são imagens hospedadas num CDN externo (jsDelivr), não
+   fontes locais — trocar o .src de #character-avatar a cada novo dia sem
+   pré-carregar antes deixa a imagem "travada" (o navegador ainda decodindo
+   ou baixando) bem no meio da animação de entrada do card. Prégarregando
+   as 9 imagens (8 temas + avatar do tutorial) assim que o script roda, o
+   navegador já tem tudo em cache no primeiro dia de verdade. */
+function preloadCharacterSkins() {
+  const urls = new Set([TUTORIAL_AVATAR, ...Object.values(CHARACTER_SKINS)]);
+  urls.forEach((url) => {
+    const img = new Image();
+    img.src = url;
+  });
+}
+
 /* ---------------------------------------------------------------------
    Som — sintetizado via Web Audio API (sem arquivos externos), com
    preferência salva em localStorage.
@@ -2344,9 +2358,14 @@ class TerraformGame {
   };
 
   formatBonusText(bonus) {
+    const labels = {
+      ...TerraformGame.METRIC_LABELS,
+      ...TerraformGame.FACTION_LABELS,
+      ...TerraformGame.RESOURCE_LABELS,
+    };
     const parts = Object.entries(bonus || {})
       .filter(([, value]) => value)
-      .map(([key, value]) => `+${value}% ${TerraformGame.METRIC_LABELS[key] || key}`);
+      .map(([key, value]) => `+${value}% ${labels[key] || key}`);
     return parts.length ? parts.join(' · ') : 'Nenhum bônus desta vez';
   }
 
@@ -3705,6 +3724,7 @@ function initEscapeToClose() {
 }
 
 function init() {
+  preloadCharacterSkins();
   game = new TerraformGame();
   initMenu();
   initMenuModals();
