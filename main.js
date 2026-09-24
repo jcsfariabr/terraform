@@ -3311,6 +3311,12 @@ function showScreen(screenId) {
   });
   const target = document.getElementById(screenId);
   target.classList.add('active');
+
+  // No celular, o HUD de gameplay é um carrossel — sempre entra pela
+  // página PRINCIPAL, nunca pelo menu (que agora fica um deslize à
+  // esquerda dela). No desktop isto não faz nada (pager é display:contents).
+  if (screenId === Screens.GAMEPLAY) hudPagerGoToMain();
+
   const content = target.querySelector('.fade-in');
   if (content) {
     content.classList.remove('fade-in');
@@ -3559,6 +3565,62 @@ function initGameplay() {
   });
 }
 
+// No celular, o HUD vira um carrossel (Menu / PRINCIPAL / Índices / Facções
+// / Recursos, nessa ordem — PRINCIPAL é a página inicial, o menu fica um
+// deslize pra esquerda) navegável por swipe — o scroll-snap em CSS já faz
+// o gesto funcionar sozinho; isto só mantém os pontinhos sincronizados,
+// permite clicar neles para pular de página, e expõe hudPagerGoToMain()
+// para showScreen() sempre abrir a tela de gameplay na página PRINCIPAL
+// (desktop ignora tudo isto, já que lá .hud-pager-track é display:contents
+// e não é um contêiner de scroll).
+const HUD_PAGER_MAIN_INDEX = 1;
+let hudPagerGoTo = null;
+
+function initHudPager() {
+  const track = document.querySelector('.hud-pager-track');
+  const dots = Array.from(document.querySelectorAll('.hud-dot'));
+  if (!track || !dots.length) return;
+
+  const pages = Array.from(track.children);
+
+  function setActive(index) {
+    dots.forEach((dot, i) => {
+      const active = i === index;
+      dot.classList.toggle('is-active', active);
+      dot.setAttribute('aria-selected', active ? 'true' : 'false');
+    });
+  }
+
+  function goTo(index, instant) {
+    const page = pages[index];
+    if (!page) return;
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    track.scrollTo({ left: page.offsetLeft, behavior: instant || reduceMotion ? 'auto' : 'smooth' });
+    setActive(index);
+  }
+  hudPagerGoTo = goTo;
+
+  dots.forEach((dot, i) => {
+    dot.addEventListener('click', () => goTo(i, false));
+  });
+
+  let scrollTimeout = null;
+  track.addEventListener('scroll', () => {
+    clearTimeout(scrollTimeout);
+    scrollTimeout = setTimeout(() => {
+      const trackWidth = track.clientWidth || 1;
+      const index = Math.round(track.scrollLeft / trackWidth);
+      setActive(Math.max(0, Math.min(pages.length - 1, index)));
+    }, 80);
+  }, { passive: true });
+}
+
+// Chamado toda vez que a tela de gameplay entra em cena (ver showScreen),
+// pra sempre começar na página PRINCIPAL — nunca no menu à esquerda dela.
+function hudPagerGoToMain() {
+  if (hudPagerGoTo) hudPagerGoTo(HUD_PAGER_MAIN_INDEX, true);
+}
+
 function initEnding() {
   document.getElementById('btn-play-again').addEventListener('click', () => {
     game.startNewGame();
@@ -3595,6 +3657,7 @@ function init() {
   initMenuModals();
   initTutorial();
   initGameplay();
+  initHudPager();
   initEnding();
   initEscapeToClose();
   showScreen(Screens.LOADING);

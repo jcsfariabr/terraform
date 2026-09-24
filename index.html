@@ -140,95 +140,125 @@
 
     <div class="gameplay-grid fade-in">
 
-      <!-- Índices do Planeta -->
-      <div class="hud-card hud-card--metrics">
-        <div class="hud-card-header hud-header--green">Índices do Planeta</div>
-        <div class="hud-card-body">
-          <div class="metric-row">
-            <span class="metric-label"><span class="icon-chip icon-chip--bio" aria-hidden="true">🌱</span>Biodiversidade</span>
-            <div class="bar-track"><div id="bar-biodiversity" class="bar-fill metric-bio"></div></div>
-          </div>
-          <div class="metric-row">
-            <span class="metric-label"><span class="icon-chip icon-chip--air" aria-hidden="true">💨</span>Qualidade do Ar</span>
-            <div class="bar-track"><div id="bar-air" class="bar-fill metric-air"></div></div>
-          </div>
-          <div class="metric-row">
-            <span class="metric-label"><span class="icon-chip icon-chip--water" aria-hidden="true">💧</span>Pureza da Água</span>
-            <div class="bar-track"><div id="bar-water" class="bar-fill metric-water"></div></div>
-          </div>
-          <div class="metric-row">
-            <span class="metric-label"><span class="icon-chip icon-chip--energy" aria-hidden="true">⚡</span>Energia Limpa</span>
-            <div class="bar-track"><div id="bar-energy" class="bar-fill metric-energy"></div></div>
+      <!-- Páginas do HUD. No celular, deslize para os lados para trocar.
+           PRINCIPAL é a página inicial; o menu (som/recomeçar/dia/estado)
+           fica um deslize para a ESQUERDA, não mais fixo. -->
+      <div class="hud-pager-track">
+
+        <!-- MENU: som, recomeçar, voltar / dia / estado do mundo -->
+        <div class="hud-page hud-page--bar">
+          <div class="hud-card hud-card--controls">
+            <div class="controls-row controls-row--white">
+              <button id="btn-sound-toggle" class="icon-btn" title="Som" aria-label="Ativar ou desativar o som">🔊</button>
+              <button id="btn-restart" class="icon-btn" title="Recomeçar" aria-label="Recomeçar a partida do Dia 1">🔁</button>
+              <button id="btn-back-to-menu" class="icon-btn" title="Voltar ao Menu" aria-label="Voltar ao menu principal">🏠</button>
+            </div>
+            <div class="controls-row controls-row--cyan">
+              <span id="day-counter" class="day-counter">Dia 1 / 40</span>
+            </div>
+            <div class="controls-row controls-row--yellow">
+              <span id="health-status" class="health-status" aria-live="polite">Melhorando</span>
+            </div>
           </div>
         </div>
+
+        <!-- PRINCIPAL: Personagem + Enunciado + Respostas -->
+        <div class="hud-page hud-page--main">
+          <div id="event-panel" class="hud-card hud-card--character">
+            <img id="character-avatar" class="character-avatar" aria-hidden="true" alt="" src="https://cdn.jsdelivr.net/gh/microsoft/fluentui-emoji@main/assets/Astronaut/Default/3D/astronaut_3d_default.png">
+            <div class="hud-header--purple-dark">
+              <h2 id="event-title" class="event-title">Título do evento</h2>
+              <p id="event-description" class="event-description" aria-live="polite">Descrição do evento.</p>
+            </div>
+          </div>
+
+          <div class="hud-card hud-card--answers">
+            <button id="btn-option-a" class="answer-btn">Opção A</button>
+            <button id="btn-option-b" class="answer-btn">Opção B</button>
+          </div>
+        </div>
+
+        <!-- TELA 1: Índices do Planeta -->
+        <div class="hud-page hud-page--indices">
+          <div class="hud-card hud-card--metrics">
+            <div class="hud-card-header hud-header--green">🌍 Índices do Planeta</div>
+            <div class="hud-card-body">
+              <div class="metric-row">
+                <span class="metric-label"><span class="icon-chip icon-chip--bio" aria-hidden="true">🌱</span>Biodiversidade</span>
+                <div class="bar-track"><div id="bar-biodiversity" class="bar-fill metric-bio"></div></div>
+              </div>
+              <div class="metric-row">
+                <span class="metric-label"><span class="icon-chip icon-chip--air" aria-hidden="true">💨</span>Qualidade do Ar</span>
+                <div class="bar-track"><div id="bar-air" class="bar-fill metric-air"></div></div>
+              </div>
+              <div class="metric-row">
+                <span class="metric-label"><span class="icon-chip icon-chip--water" aria-hidden="true">💧</span>Pureza da Água</span>
+                <div class="bar-track"><div id="bar-water" class="bar-fill metric-water"></div></div>
+              </div>
+              <div class="metric-row">
+                <span class="metric-label"><span class="icon-chip icon-chip--energy" aria-hidden="true">⚡</span>Energia Limpa</span>
+                <div class="bar-track"><div id="bar-energy" class="bar-fill metric-energy"></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TELA 2: Facções -->
+        <div class="hud-page hud-page--factions">
+          <div class="hud-card hud-card--factions">
+            <div class="hud-card-header hud-header--red">🏛️ Facções</div>
+            <div class="faction-circles">
+              <div class="faction-circle-wrap">
+                <div id="circle-technocrats" class="faction-circle faction-circle--technocrats"></div>
+                <span class="faction-circle-label">🤖 Tecnocratas</span>
+              </div>
+              <div class="faction-circle-wrap">
+                <div id="circle-ecologists" class="faction-circle faction-circle--ecologists"></div>
+                <span class="faction-circle-label">🌿 Ecologistas</span>
+              </div>
+              <div class="faction-circle-wrap">
+                <div id="circle-corporations" class="faction-circle faction-circle--corporations"></div>
+                <span class="faction-circle-label">💰 Corporações</span>
+              </div>
+              <div class="faction-circle-wrap">
+                <div id="circle-people" class="faction-circle faction-circle--people"></div>
+                <span class="faction-circle-label">👥 Povo</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TELA 3: Recursos -->
+        <div class="hud-page hud-page--resources">
+          <div class="hud-card hud-card--resources">
+            <div class="hud-card-header hud-header--blue">📊 Recursos</div>
+            <div class="hud-card-body">
+              <div class="metric-row">
+                <span class="metric-label"><span class="icon-chip icon-chip--credits" aria-hidden="true">💰</span>Créditos</span>
+                <div class="bar-track"><div id="bar-credits" class="bar-fill metric-credits"></div></div>
+              </div>
+              <div class="metric-row">
+                <span class="metric-label"><span class="icon-chip icon-chip--energy" aria-hidden="true">⚙️</span>Energia</span>
+                <div class="bar-track"><div id="bar-resource-energy" class="bar-fill metric-resource-energy"></div></div>
+              </div>
+              <div class="metric-row">
+                <span class="metric-label"><span class="icon-chip icon-chip--influence" aria-hidden="true">📊</span>Influência</span>
+                <div class="bar-track"><div id="bar-influence" class="bar-fill metric-influence"></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
       </div>
 
-      <!-- Personagem + Enunciado -->
-      <div id="event-panel" class="hud-card hud-card--character">
-        <img id="character-avatar" class="character-avatar" aria-hidden="true" alt="" src="https://cdn.jsdelivr.net/gh/microsoft/fluentui-emoji@main/assets/Astronaut/Default/3D/astronaut_3d_default.png">
-        <div class="hud-header--purple-dark">
-          <h2 id="event-title" class="event-title">Título do evento</h2>
-          <p id="event-description" class="event-description" aria-live="polite">Descrição do evento.</p>
-        </div>
-      </div>
-
-      <!-- Controles: som, recomeçar, menu / dia / estado do mundo -->
-      <div class="hud-card hud-card--controls">
-        <div class="controls-row controls-row--white">
-          <button id="btn-sound-toggle" class="icon-btn" title="Som" aria-label="Ativar ou desativar o som">🔊</button>
-          <button id="btn-restart" class="icon-btn" title="Recomeçar" aria-label="Recomeçar a partida do Dia 1">🔁</button>
-          <button id="btn-back-to-menu" class="icon-btn" title="Voltar ao Menu" aria-label="Voltar ao menu principal">🏠</button>
-        </div>
-        <div class="controls-row controls-row--cyan">
-          <span id="day-counter" class="day-counter">Dia 1 / 40</span>
-        </div>
-        <div class="controls-row controls-row--yellow">
-          <span id="health-status" class="health-status" aria-live="polite">Melhorando</span>
-        </div>
-      </div>
-
-      <!-- Facções + Recursos -->
-      <div class="hud-card hud-card--factions">
-        <div class="hud-card-header hud-header--red">Facções</div>
-        <div class="faction-circles">
-          <div class="faction-circle-wrap">
-            <div id="circle-technocrats" class="faction-circle faction-circle--technocrats"></div>
-            <span class="faction-circle-label">🤖 Tecnocratas</span>
-          </div>
-          <div class="faction-circle-wrap">
-            <div id="circle-ecologists" class="faction-circle faction-circle--ecologists"></div>
-            <span class="faction-circle-label">🌿 Ecologistas</span>
-          </div>
-          <div class="faction-circle-wrap">
-            <div id="circle-corporations" class="faction-circle faction-circle--corporations"></div>
-            <span class="faction-circle-label">💰 Corporações</span>
-          </div>
-          <div class="faction-circle-wrap">
-            <div id="circle-people" class="faction-circle faction-circle--people"></div>
-            <span class="faction-circle-label">👥 Povo</span>
-          </div>
-        </div>
-        <div class="hud-card-header hud-header--blue">Recursos</div>
-        <div class="hud-card-body">
-          <div class="metric-row">
-            <span class="metric-label"><span class="icon-chip icon-chip--credits" aria-hidden="true">💰</span>Créditos</span>
-            <div class="bar-track"><div id="bar-credits" class="bar-fill metric-credits"></div></div>
-          </div>
-          <div class="metric-row">
-            <span class="metric-label"><span class="icon-chip icon-chip--energy" aria-hidden="true">⚙️</span>Energia</span>
-            <div class="bar-track"><div id="bar-resource-energy" class="bar-fill metric-resource-energy"></div></div>
-          </div>
-          <div class="metric-row">
-            <span class="metric-label"><span class="icon-chip icon-chip--influence" aria-hidden="true">📊</span>Influência</span>
-            <div class="bar-track"><div id="bar-influence" class="bar-fill metric-influence"></div></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Respostas -->
-      <div class="hud-card hud-card--answers">
-        <button id="btn-option-a" class="answer-btn">Opção A</button>
-        <button id="btn-option-b" class="answer-btn">Opção B</button>
+      <!-- Indicador de página: só aparece no celular. PRINCIPAL é a página
+           inicial (índice 1) — o menu fica à esquerda (índice 0). -->
+      <div class="hud-pager-dots" role="tablist" aria-label="Painéis do HUD">
+        <button type="button" class="hud-dot" data-page="0" role="tab" aria-selected="false" aria-label="Menu: som, recomeçar, dia e estado"></button>
+        <button type="button" class="hud-dot is-active" data-page="1" role="tab" aria-selected="true" aria-label="Personagem e decisão do dia"></button>
+        <button type="button" class="hud-dot" data-page="2" role="tab" aria-selected="false" aria-label="Índices do planeta"></button>
+        <button type="button" class="hud-dot" data-page="3" role="tab" aria-selected="false" aria-label="Facções"></button>
+        <button type="button" class="hud-dot" data-page="4" role="tab" aria-selected="false" aria-label="Recursos"></button>
       </div>
 
     </div>

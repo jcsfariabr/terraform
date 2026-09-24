@@ -1,5 +1,7 @@
 ﻿/* ==========================================================================
-   TERRAFORM — Identidade Visual
+   TERRAFORM — Identidade Visual (Etapa 7: redesign — sci-fi cinematográfico
+   + ilustrativo: fundo estelar, glassmorphism, planeta maior e animado,
+   temas de cor por ato/final, micro-interações)
    Paleta: Ciano #00D4FF | Verde Neon #00FF00 | Alerta #FF0040
    ========================================================================== */
 
@@ -208,6 +210,15 @@ body {
 
 .screen.active {
   display: flex;
+}
+
+/* Só o gameplay trava o scroll da página (em qualquer tamanho de tela) —
+   menu, tutorial e final continuam livres pra crescer e rolar normalmente,
+   já que só o HUD de jogo foi desenhado pra caber inteiro na viewport. */
+#screen-gameplay {
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
 }
 
 /* ---------- Tipografia ---------- */
@@ -463,48 +474,32 @@ body {
   gap: 19px;
   column-gap: 106.4px;
   grid-template-areas:
-    "metrics   character controls"
-    "factions  character .       "
-    "factions  answers   answers ";
+    "metrics   character controls "
+    "factions  character resources"
+    "answers   answers   answers  ";
   align-items: start;
 }
 
-/* O jogo agora exige paisagem no celular (ver .rotate-device-notice), e um
-   celular em paisagem é LARGO mas BAIXO — largura sozinha (max-width) não
-   basta mais para detectar "é um celular", senão a grade de 3 colunas do
-   desktop (pensada para telas grandes) espreme os cards e corta ícones/texto
-   nas telas baixas. Por isso a condição também dispara por altura curta em
-   paisagem. */
-@media (max-width: 760px), (max-height: 520px) and (orientation: landscape) {
-  .gameplay-grid {
-    grid-template-columns: 1fr;
-    grid-template-areas:
-      "controls"
-      "character"
-      "answers"
-      "metrics"
-      "factions";
-  }
+/* Wrappers de paginação: no desktop eles somem do fluxo (display: contents),
+   então os .hud-card continuam caindo direto na grade acima pelo grid-area
+   de cada um — no celular é que viram as "páginas" deslizáveis de verdade. */
+.hud-page,
+.hud-pager-track {
+  display: contents;
+}
 
-  .hud-card--character {
-    margin-top: 0;
-  }
-
-  .character-avatar {
-    width: 6em;
-    height: 6em;
-    padding: 12px 0 6px;
-  }
+.hud-pager-dots {
+  display: none;
 }
 
 .hud-card {
-  background: var(--glass-bg);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.02)), var(--glass-bg);
   border: 1px solid var(--glass-border);
   border-radius: 19px;
   overflow: hidden;
-  backdrop-filter: blur(16px) saturate(160%);
-  -webkit-backdrop-filter: blur(16px) saturate(160%);
-  box-shadow: inset 0 0.95px 0 rgba(255, 255, 255, 0.06), 0 7.6px 22.8px rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), inset 0 0 40px rgba(255, 255, 255, 0.02), 0 7.6px 22.8px rgba(0, 0, 0, 0.25);
   text-align: left;
 }
 
@@ -527,6 +522,21 @@ body {
 
 .hud-card--metrics { grid-area: metrics; }
 .hud-card--factions { grid-area: factions; }
+.hud-card--resources { grid-area: resources; }
+
+/* Lâmina de cor por seção, por cima do glass — reforça a identidade visual
+   de cada card (verde = índices, vermelho = facções, azul = recursos). */
+.hud-card--metrics .hud-card-body {
+  background: linear-gradient(180deg, rgba(20, 140, 48, 0.16), rgba(10, 60, 20, 0.04));
+}
+
+.hud-card--factions .faction-circles {
+  background: linear-gradient(180deg, rgba(180, 20, 20, 0.14), rgba(80, 8, 8, 0.03));
+}
+
+.hud-card--resources .hud-card-body {
+  background: linear-gradient(180deg, rgba(12, 130, 150, 0.16), rgba(6, 58, 68, 0.04));
+}
 
 .metric-row {
   margin-bottom: 14.25px;
@@ -690,8 +700,8 @@ body {
 }
 
 .faction-circle {
-  width: var(--size, 47.5px);
-  height: var(--size, 47.5px);
+  width: calc(var(--size, 47.5px) * var(--circle-scale, 1));
+  height: calc(var(--size, 47.5px) * var(--circle-scale, 1));
   border-radius: 50%;
   transition: width 0.4s ease, height 0.4s ease;
 }
@@ -724,12 +734,6 @@ body {
   box-shadow: none;
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
-}
-
-@media (max-width: 760px) {
-  .hud-card--answers {
-    flex-direction: column;
-  }
 }
 
 .answer-btn {
@@ -1847,5 +1851,417 @@ body.shake-active .gameplay-grid {
   #screen-ending,
   .modal-overlay {
     display: none !important;
+  }
+}
+
+/* O jogo agora exige paisagem no celular (ver .rotate-device-notice), e um
+   celular em paisagem é LARGO mas BAIXO — largura sozinha (max-width) não
+   basta mais para detectar "é um celular", senão a grade de 3 colunas do
+   desktop (pensada para telas grandes) espreme os cards e corta ícones/texto
+   nas telas baixas. Por isso a condição também dispara por altura curta em
+   paisagem. */
+@media (max-width: 760px), (max-height: 520px) and (orientation: landscape) {
+  /* No resto do site a tela cresce com o conteúdo e a PÁGINA rola — mas o
+     HUD paginado só faz sentido como um "app": cada página cabe inteira na
+     tela, e é o dedo que troca de página, não o scroll vertical. */
+  #screen-gameplay {
+    height: 100vh;
+    height: 100dvh;
+    min-height: 100vh;
+    min-height: 100dvh;
+    padding: 9.5px;
+    overflow: hidden;
+  }
+
+  .gameplay-grid {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    grid-template-columns: unset;
+    grid-template-areas: none;
+    gap: 7.13px;
+    height: 100%;
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  /* No desktop os wrappers de página somem (display: contents). No celular
+     eles viram os blocos de verdade: todas as 5 páginas (menu, principal,
+     índices, facções, recursos) entram no mesmo trilho deslizável — a
+     PRINCIPAL é a inicial, e o menu fica um deslize pra esquerda dela. */
+  .hud-page,
+  .hud-pager-track {
+    display: block;
+  }
+
+  /* Página MENU: empilhada (branco fino / ciano grande / amarelo médio),
+     card com altura pelo próprio conteúdo (não a página inteira) e
+     centralizado — como no mockup de referência. */
+  .hud-pager-track > .hud-page--bar {
+    justify-content: center;
+    align-items: center;
+  }
+
+  .hud-page--bar .hud-card--controls {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .controls-row--white {
+    padding: 11.88px 14.25px;
+  }
+
+  .controls-row--cyan {
+    padding: 33.25px 14.25px;
+  }
+
+  .controls-row--yellow {
+    padding: 19px 14.25px;
+  }
+
+  /* Trilho deslizável: cada página ocupa 100% da largura, com scroll-snap
+     nativo — "deslizar para os lados" troca de HUD sem depender de uma lib
+     de gestos; um listener leve (main.js) só sincroniza os pontinhos. */
+  .hud-pager-track {
+    flex: 1 1 auto;
+    min-height: 0;
+    min-width: 0;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .hud-pager-track::-webkit-scrollbar {
+    display: none;
+  }
+
+  .hud-pager-track > .hud-page {
+    flex: 0 0 100%;
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+    display: flex;
+    flex-direction: column;
+    /* flex-start, não center: com overflow-y:auto, um justify-content:center
+       em conteúdo maior que a página deixa o topo permanentemente
+       inacessível (o navegador "centraliza" empurrando o topo pra fora do
+       scroll, e scrollTop não vai negativo pra compensar). */
+    justify-content: flex-start;
+    gap: 9.5px;
+    padding: 4.75px 2.38px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    min-height: 0;
+    min-width: 0;
+    box-sizing: border-box;
+  }
+
+  /* Sem isso, os cards encolhem (flex-shrink padrão) pra caber na página e
+     cortam texto, já que .hud-card tem overflow:hidden — preferimos manter
+     o card no tamanho natural e deixar a PÁGINA rolar verticalmente. */
+  .hud-pager-track > .hud-page > .hud-card {
+    flex-shrink: 0;
+  }
+
+  /* PRINCIPAL não rola — tudo (avatar, enunciado, respostas) precisa caber
+     na página de uma vez. Avatar vira um ícone menor ao lado do título (em
+     vez de empilhado acima dele), e as respostas ficam lado a lado (não
+     empilhadas) — como no mockup de referência, onde o roxo escuro domina
+     a página e as respostas ocupam só a faixa de baixo. */
+  .hud-pager-track > .hud-page--main {
+    overflow-y: hidden;
+    gap: 4.75px;
+  }
+
+  .hud-card--character {
+    margin-top: 0;
+    flex-direction: row;
+    align-items: flex-start;
+    flex: 1;
+  }
+
+  .character-avatar {
+    width: 10.2em;
+    height: 100%;
+    padding: 9.5px 0px 9.5px 0px;
+    flex-shrink: 0;
+    border-radius: 9.5px;
+  }
+
+  .hud-header--purple-dark {
+    padding: 7.13px 11.88px 7.13px 7.13px;
+    flex: 1;
+    min-width: 0;
+    min-height: 100%;
+  }
+
+  .event-title {
+    font-size: 1.38em;
+    margin-bottom: 3.5px;
+  }
+
+  .event-description {
+    font-size: 1.2em;
+    line-height: 1.24;
+  }
+
+  .hud-card--answers {
+    flex-direction: row;
+    flex: 0 0 auto;
+    padding: 7.13px;
+    gap: 7.13px;
+  }
+
+  .answer-btn {
+    padding: 9.5px 11.88px;
+    font-size: 1.2em;
+    line-height: 1.25;
+    border-radius: 9.5px;
+    min-height: 4.3em;
+  }
+
+  /* Índices, Facções e Recursos não competem mais por espaço com uma barra
+     fixa — cada um usa o máximo de tamanho que cabe SEM precisar rolar
+     (calibrado testando no pior caso: tela curta em paisagem). */
+  .hud-page--indices .hud-card-header {
+    font-size: 1.2em;
+    padding: 9.5px 14.25px;
+  }
+
+  .hud-page--indices .hud-card-body {
+    padding: 9.5px 14.25px;
+  }
+
+  .hud-page--indices .metric-row {
+    margin-bottom: 9.5px;
+  }
+
+  .hud-page--indices .metric-label {
+    font-size: 1.4em;
+    margin-bottom: 4.75px;
+  }
+
+  .hud-page--indices .icon-chip {
+    width: 1.5em;
+    height: 1.5em;
+    font-size: 0.95em;
+  }
+
+  .hud-page--indices .bar-track {
+    height: 9.5px;
+  }
+
+  /* Facções tem muito mais folga (só 4 círculos + rótulo) — os círculos
+     continuam representando o tamanho real da facção (--size, calculado em
+     main.js), só a ESCALA visual cresce. */
+  .hud-page--factions {
+    --circle-scale: 2.4;
+  }
+
+  .hud-page--factions .hud-card-header {
+    font-size: 1.2em;
+    padding: 14.25px 19px;
+  }
+
+  .hud-page--factions .faction-circles {
+    padding: 33px 14.25px 23.75px;
+    gap: 9.5px;
+  }
+
+  .hud-page--factions .faction-circle-wrap {
+    gap: 11.88px;
+  }
+
+  .hud-page--factions .faction-circle-label {
+    font-size: 0.95em;
+  }
+
+  /* Recursos já fica bem perto do limite com o tamanho padrão — não sobra
+     espaço extra pra crescer sem precisar rolar. */
+
+  /* Indicador de página */
+  .hud-pager-dots {
+    display: flex;
+    flex: 0 0 auto;
+    justify-content: center;
+    align-items: center;
+    gap: 9.5px;
+    padding: 2.38px 0 0;
+  }
+
+  .hud-dot {
+    width: 9.5px;
+    height: 9.5px;
+    border-radius: 50%;
+    border: 1px solid var(--glass-border);
+    background: rgba(255, 255, 255, 0.15);
+    padding: 0;
+    cursor: pointer;
+    transition: transform 0.2s ease, background 0.2s ease;
+  }
+
+  .hud-dot.is-active {
+    background: var(--color-primary);
+    box-shadow: 0 0 8px var(--color-primary);
+    transform: scale(1.25);
+  }
+
+  /* ---------- Modais (minigame / conquistas / sobre) no celular ----------
+     Antes disso o modal usava o tamanho do desktop e, em telas curtas,
+     simplesmente ultrapassava a viewport sem nenhuma forma de chegar até o
+     resto — o rodapé com "Pular"/"Concluir" ficava inacessível. A OVERLAY
+     continua como rede de segurança (align-items:flex-start + scroll — a
+     mesma lição do HUD: "center" com conteúdo maior que a tela deixa o
+     topo inacessível — + margin:auto no box pra continuar centralizando
+     quando cabe, sem travar quando não cabe), mas o objetivo é essa rede
+     NUNCA precisar entrar em ação: o .minigame-box vira uma coluna flex
+     limitada à altura da tela, onde título/timer/rodapé pedem só o espaço
+     que precisam e o TABULEIRO (.minigame-area) fica com o resto — sem
+     rolagem própria, encolhendo (grade e células) até caber inteiro. */
+  .modal-overlay {
+    align-items: flex-start;
+    padding: 9.5px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .modal-box {
+    margin: auto 0;
+    max-width: 100%;
+    padding: 14.25px;
+  }
+
+  .minigame-box {
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 19px);
+    height: calc(100dvh - 19px);
+    max-height: calc(100vh - 19px);
+    max-height: calc(100dvh - 19px);
+  }
+
+  .modal-title {
+    flex: 0 0 auto;
+    font-size: 0.95em;
+    margin-bottom: 9.5px;
+  }
+
+  .modal-box .btn {
+    margin-top: 9.5px;
+  }
+
+  .minigame-timer-track {
+    flex: 0 0 auto;
+    margin: 2.38px 0 9.5px;
+  }
+
+  .minigame-area {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: hidden;
+    gap: 3.8px;
+    margin-bottom: 9.5px;
+  }
+
+  .minigame-footer {
+    flex: 0 0 auto;
+  }
+
+  .minigame-result {
+    padding: 4.75px 0 0;
+  }
+
+  .minigame-result-bonus {
+    margin-bottom: 9.5px;
+  }
+
+  /* Reflorestamento, Água Limpa, Restauração Genética e Contenção de
+     Incêndio precisam mostrar a grade INTEIRA de uma vez no celular, sem
+     rolar — mesmo que as células fiquem pequenas. Como .minigame-area
+     agora tem altura definida (flex:1 do bloco acima), as linhas viram
+     frações dessa altura (grid-auto-rows:1fr) e as células abandonam o
+     aspect-ratio:1 do desktop, já que não sobra largura×altura suficiente
+     pra manter quadrado — ficam retangulares, mas cabem todas. */
+  .reforest-grid,
+  .genetic-grid,
+  .wildfire-grid {
+    height: 100%;
+    grid-auto-rows: 1fr;
+  }
+
+  .reforest-spot,
+  .genetic-tile,
+  .wildfire-cell {
+    aspect-ratio: unset;
+  }
+
+  .reforest-spot {
+    font-size: 1em;
+  }
+
+  .genetic-face {
+    font-size: 0.95em;
+  }
+
+  .genetic-face-back {
+    font-size: 0.8em;
+  }
+
+  /* Água Limpa é diferente: cada peça GIRA 90° ao clicar, então célula
+     retangular distorce/sobrepõe as vizinhas na rotação — precisa continuar
+     quadrada. Em vez de esticar as células, encolhe o TABULEIRO inteiro
+     (aspect-ratio:1 no container) até caber na altura disponível, e
+     centraliza — sobra espaço nas laterais em vez de espichar as peças. */
+  .water-grid {
+    height: 100%;
+    max-width: 100%;
+    aspect-ratio: 1;
+    margin: 0 auto;
+    grid-auto-rows: 1fr;
+  }
+
+  .water-tile {
+    font-size: 1.2em;
+  }
+
+  /* Cúpula das Facções não usa células quadradas (cards com ícone + barra)
+     — não dá pra "encolher pra caber" do mesmo jeito, então mantém rolagem
+     própria só aqui (2 cards por linha, sempre com pouco pra rolar). */
+  .summit-grid {
+    overflow-y: auto;
+  }
+
+  /* Rede de Energia e Filtro de Carbono usam altura fixa em px (não um
+     grid) — reduzida pra caber. Os nós da Rede de Energia encolhem junto
+     (senão dominam a área menor); já as partículas do Filtro de Carbono
+     ficam MAIORES — mais fáceis de tocar numa tela pequena. */
+  .energy-grid,
+  .carbon-area {
+    height: 33vh;
+    height: 33dvh;
+    min-height: 120px;
+  }
+
+  .energy-node {
+    width: 42px;
+    height: 42px;
+    font-size: 0.52em;
+  }
+
+  .carbon-particle {
+    width: 46px;
+    height: 46px;
+    font-size: 0.8em;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hud-pager-track {
+    scroll-behavior: auto;
   }
 }
