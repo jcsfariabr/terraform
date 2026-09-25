@@ -3429,34 +3429,17 @@ function saveMinigameWins(wins) {
 let game;
 
 /* ---------------------------------------------------------------------
-   Tela cheia obrigatória — no celular (mesmo critério do HUD paginado) E
-   em qualquer tela 16:9 (a proporção mais comum de monitor/notebook),
-   detectada pela resolução física (window.screen, não o tamanho da janela
-   — "tela 16:9" é sobre o hardware, não sobre a janela estar maximizada).
-   Só entra quando o jogador clica em Novo Jogo ou Continuar (precisa ser
-   dentro do próprio gesto de clique, senão o navegador recusa o pedido), e
-   se ela cair (o jogador saiu manualmente, trocou de app e voltou, etc.)
-   mostra um aviso pedindo pra tocar/clicar na tela de novo — em vez de
-   simplesmente ficar fora da tela cheia sem avisar. */
+   Tela cheia obrigatória — para todo mundo, qualquer dispositivo ou
+   proporção de tela. Só entra quando o jogador clica em Novo Jogo ou
+   Continuar (precisa ser dentro do próprio gesto de clique, senão o
+   navegador recusa o pedido), e se ela cair (o jogador saiu manualmente,
+   trocou de app e voltou, etc.) mostra um aviso pedindo pra tocar/clicar
+   na tela de novo — em vez de simplesmente ficar fora da tela cheia sem
+   avisar. */
 let mobileFullscreenRequested = false;
 
-function isMobileLayout() {
-  return window.matchMedia('(max-width: 760px), (max-height: 520px) and (orientation: landscape)').matches;
-}
-
-// Compara a resolução FÍSICA da tela (não a janela) com a proporção 16:9
-// (1.7778), com uma tolerância pequena pra cobrir variações comuns como
-// 1366x768 (1.7787) sem também aceitar 16:10, 4:3 ou ultrawide.
-function isSixteenNineScreen() {
-  const w = window.screen.width;
-  const h = window.screen.height;
-  if (!w || !h) return false;
-  const ratio = Math.max(w, h) / Math.min(w, h);
-  return Math.abs(ratio - 16 / 9) < 0.02;
-}
-
 function shouldForceFullscreen() {
-  return isMobileLayout() || isSixteenNineScreen();
+  return true;
 }
 
 function isFullscreenActive() {
