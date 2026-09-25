@@ -18,7 +18,7 @@
 <hr>
 
 <p align="center">
-  <img alt="Versão" src="https://img.shields.io/badge/versão-1.5-00D4FF?style=flat-square">
+  <img alt="Versão" src="https://img.shields.io/badge/versão-1.6-00D4FF?style=flat-square">
   <img alt="Status" src="https://img.shields.io/badge/status-QA%20concluído-00FF00?style=flat-square">
   <img alt="Concurso" src="https://img.shields.io/badge/CROPE-2026-FFD700?style=flat-square">
   <img alt="Stack" src="https://img.shields.io/badge/stack-HTML%20%2F%20CSS%20%2F%20JS%20puro-C084FC?style=flat-square">
