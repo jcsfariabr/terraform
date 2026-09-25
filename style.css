@@ -469,7 +469,7 @@ body {
   width: 100%;
   max-width: 2400px;
   display: grid;
-  grid-template-columns: 0.925fr 1.3fr 0.5fr;
+  grid-template-columns: 0.93fr 1.3fr 0.5fr;
   grid-template-rows: auto auto auto;
   gap: 19px;
   column-gap: 106.4px;
