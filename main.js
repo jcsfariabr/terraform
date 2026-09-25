@@ -409,7 +409,7 @@ const SoundFX = {
   revelation() { this.playFile('revelation', 0.85); },
 
   // Sons de interação por minigame — um "tic" curto a cada ação válida do
-  // jogador (plantar, rotacionar cano, conectar cidade, capturar CO2,
+  // jogador (plantar, colocar cano, conectar cidade, capturar CO2,
   // encontrar par genético, apagar fogo, acalmar facção).
   sfxPlant() { this.playFile('sfxPlant', 0.6); },
   sfxWater() { this.playFile('sfxWater', 0.6); },
@@ -2337,6 +2337,46 @@ class TerraformGame {
     summit: { influence: 3 },
   };
 
+  // Instruções mostradas antes de cada minigame começar (o timer só corre
+  // depois que o jogador aperta "Começar").
+  static MINIGAME_INFO = {
+    reforest: {
+      title: '🌲 Reflorestamento Rápido',
+      text: 'Toque nos espaços de terra vazios para plantar uma árvore em cada um.',
+      goal: '🎯 Plante as 30 árvores em 20 segundos.',
+    },
+    water: {
+      title: '🚰 Água Limpa: Conexão de Tubos',
+      text: 'Toque nos espaços da grade para colocar o próximo cano da fila (tocar num cano ainda seco troca ele pelo próximo). A água sai da estação 💧 depois de 20 segundos e segue devagar pelos canos — se chegar num cano que não encaixa ou na borda, vaza e acaba.',
+      goal: '🎯 Faça a água passar por 12 canos. "Acelerar" solta a água mais rápido.',
+    },
+    energy: {
+      title: '⚡ Rede de Energia',
+      text: 'Toque numa usina e depois numa cidade para ligá-las (tocar de novo desliga). Cada cidade precisa de energia suficiente, e a demanda sobe com o tempo.',
+      goal: '🎯 Termine com as 3 cidades energizadas.',
+    },
+    carbon: {
+      title: '🌪️ Filtro de Carbono',
+      text: 'Partículas caem pela tela. Toque só nas vermelhas de CO2 para capturá-las. Tocar em O2 (verde) conta como erro; N2 (amarelo) não conta nada.',
+      goal: '🎯 Capture 30 CO2 com menos de 3 erros.',
+    },
+    genetic: {
+      title: '🧬 Restauração Genética',
+      text: 'Vire as cartas de duas em duas e encontre os pares complementares do DNA: A com T e G com C.',
+      goal: '🎯 Encontre os 6 pares.',
+    },
+    wildfire: {
+      title: '🔥 Contenção de Incêndio',
+      text: 'O fogo começa em alguns pontos e se espalha para as células vizinhas. Toque nas células em chamas para apagá-las antes que queimem.',
+      goal: '🎯 Salve pelo menos 80% da floresta.',
+    },
+    summit: {
+      title: '🤝 Cúpula das Facções',
+      text: 'A satisfação de cada facção cai a cada segundo. Toque nas facções para acalmar os ânimos.',
+      goal: '🎯 Mantenha todas acima de 40% e a média acima de 65%.',
+    },
+  };
+
   static METRIC_LABELS = {
     biodiversity: 'Biodiversidade',
     airQuality: 'Qualidade do Ar',
@@ -2493,14 +2533,37 @@ class TerraformGame {
     document.getElementById('minigame-result').style.display = 'block';
   }
 
+  // Abre o modal na tela de instruções; o minigame em si (e o timer) só
+  // começa em beginMinigame(), quando o jogador aperta "Começar".
   startMinigame(type, onComplete) {
     this.currentMinigameType = type;
     this.minigameOnComplete = onComplete;
+    const info = TerraformGame.MINIGAME_INFO[type];
+    if (!info) {
+      // Tipo desconhecido: encerra imediatamente sem bônus.
+      this.finishMinigame({});
+      return;
+    }
+
+    document.getElementById('minigame-title').textContent = info.title;
+    document.getElementById('minigame-intro-text').textContent = info.text;
+    document.getElementById('minigame-intro-goal').textContent = info.goal;
+    document.getElementById('minigame-intro').style.display = '';
     document.getElementById('minigame-result').style.display = 'none';
+    document.getElementById('minigame-area').style.display = 'none';
+    document.querySelector('.minigame-timer-track').style.display = 'none';
+    document.querySelector('.minigame-footer').style.display = 'none';
+    openModal('minigame-modal');
+  }
+
+  beginMinigame() {
+    const type = this.currentMinigameType;
+    if (!type) return;
+    document.getElementById('btn-minigame-confirm').textContent = 'Concluir';
+    document.getElementById('minigame-intro').style.display = 'none';
     document.getElementById('minigame-area').style.display = '';
     document.querySelector('.minigame-timer-track').style.display = '';
     document.querySelector('.minigame-footer').style.display = '';
-    openModal('minigame-modal');
 
     if (type === 'reforest') {
       this.setupReforestMinigame();
@@ -2516,9 +2579,6 @@ class TerraformGame {
       this.setupWildfireMinigame();
     } else if (type === 'summit') {
       this.setupSummitMinigame();
-    } else {
-      // Tipo desconhecido: encerra imediatamente sem bônus.
-      this.finishMinigame({});
     }
   }
 
@@ -2573,57 +2633,242 @@ class TerraformGame {
     const confirmBtn = document.getElementById('btn-minigame-confirm');
     const area = document.getElementById('minigame-area');
 
+    // Estilo Pipe Dream: o jogador coloca na grade os canos que vêm de uma
+    // fila, e depois de uma contagem a água sai da estação e avança um cano
+    // por vez. Acaba quando a água vaza (cano que não encaixa ou borda) ou
+    // quando o tempo termina. Quanto mais canos a água percorrer, melhor.
     title.textContent = '🚰 Água Limpa: Conexão de Tubos';
     confirmBtn.style.display = 'inline-block';
-    area.className = 'minigame-area water-grid';
+    confirmBtn.textContent = '⏩ Acelerar';
+    area.className = 'minigame-area pipe-area';
     area.innerHTML = '';
 
-    const pipeGlyphs = ['┃', '┏', '┓', '┗', '┛', '┳', '┻', '┣', '┫', '╋'];
-    const totalTiles = 16;
-    const tiles = [];
+    const SIZE = 6;
+    const GOAL = 12;
+    const START_DELAY_MS = 20000;
+    const STEP_MS = 2200;
+    const FAST_STEP_MS = 160;
+    const SVG_NS = 'http://www.w3.org/2000/svg';
+
+    const DIRS = {
+      U: { dr: -1, dc: 0, opposite: 'D', point: '50 0' },
+      D: { dr: 1, dc: 0, opposite: 'U', point: '50 100' },
+      L: { dr: 0, dc: -1, opposite: 'R', point: '0 50' },
+      R: { dr: 0, dc: 1, opposite: 'L', point: '100 50' },
+    };
+    // Cada peça é a lista de lados abertos. Retas aparecem com mais
+    // frequência que curvas, e a cruz é a mais rara.
+    const PIECES = {
+      h: ['L', 'R'], v: ['U', 'D'],
+      ul: ['U', 'L'], ur: ['U', 'R'], dl: ['D', 'L'], dr: ['D', 'R'],
+      x: ['U', 'D', 'L', 'R'],
+    };
+    const PIECE_POOL = ['h', 'h', 'v', 'v', 'ul', 'ur', 'dl', 'dr', 'x'];
+    const randomPiece = () => PIECE_POOL[Math.floor(Math.random() * PIECE_POOL.length)];
+
+    const makeSvg = () => {
+      const svg = document.createElementNS(SVG_NS, 'svg');
+      svg.setAttribute('viewBox', '0 0 100 100');
+      svg.classList.add('pipe-svg');
+      return svg;
+    };
+    const addPath = (svg, d, cls) => {
+      const path = document.createElementNS(SVG_NS, 'path');
+      path.setAttribute('d', d);
+      path.setAttribute('class', cls);
+      svg.appendChild(path);
+      return path;
+    };
+    // Desenha o cano: cruz = duas retas; as demais = entrada → centro → saída.
+    const drawPiece = (svg, piece) => {
+      const sides = PIECES[piece];
+      const segments = piece === 'x'
+        ? [['L', 'R'], ['U', 'D']]
+        : [sides];
+      segments.forEach(([a, b]) => {
+        const d = `M ${DIRS[a].point} L 50 50 L ${DIRS[b].point}`;
+        addPath(svg, d, 'pipe-shell');
+        addPath(svg, d, 'pipe-core');
+      });
+    };
+
+    // Grade: fonte numa célula que não fica colada na borda para onde aponta.
+    const cells = [];
+    const srcRow = 1 + Math.floor(Math.random() * (SIZE - 2));
+    const srcCol = 1 + Math.floor(Math.random() * (SIZE - 2));
+    const srcDir = ['U', 'D', 'L', 'R'][Math.floor(Math.random() * 4)];
+    const sourceIdx = srcRow * SIZE + srcCol;
+
+    const queue = [randomPiece(), randomPiece(), randomPiece(), randomPiece()];
+    const queueEl = document.createElement('div');
+    queueEl.className = 'pipe-queue';
+    const board = document.createElement('div');
+    board.className = 'pipe-board';
+    board.style.gridTemplateColumns = `repeat(${SIZE}, 1fr)`;
+    area.appendChild(queueEl);
+    area.appendChild(board);
+
+    const renderQueue = () => {
+      queueEl.innerHTML = '<span class="pipe-queue-label">Próximos</span>';
+      queue.forEach((piece, i) => {
+        const slot = document.createElement('div');
+        slot.className = i === 0 ? 'pipe-queue-slot next' : 'pipe-queue-slot';
+        const svg = makeSvg();
+        drawPiece(svg, piece);
+        slot.appendChild(svg);
+        queueEl.appendChild(slot);
+      });
+    };
+
+    let pipesFilled = 0;
+    let flowStarted = false;
+    let finished = false;
+    let stepMs = STEP_MS;
+    let nextStepAt = performance.now() + START_DELAY_MS;
+    let flowCell = sourceIdx;
+    let flowDir = srcDir;
 
     const updateStatus = () => {
-      const solved = tiles.filter((t) => t.rotation === 0).length;
-      statusEl.textContent = `${solved}/${totalTiles} tubos conectados`;
+      if (!flowStarted) {
+        const secs = Math.max(0, Math.ceil((nextStepAt - performance.now()) / 1000));
+        statusEl.textContent = `A água sai em ${secs}s · meta: ${GOAL} canos`;
+      } else {
+        statusEl.textContent = `💧 ${pipesFilled}/${GOAL} canos com água`;
+      }
     };
 
-    for (let i = 0; i < totalTiles; i++) {
-      const glyph = pipeGlyphs[Math.floor(Math.random() * pipeGlyphs.length)];
-      const tileState = { rotation: (1 + Math.floor(Math.random() * 3)) * 90 };
-      tiles.push(tileState);
+    for (let i = 0; i < SIZE * SIZE; i++) {
+      const cellEl = document.createElement('button');
+      cellEl.type = 'button';
+      cellEl.className = 'pipe-cell';
+      const cell = { el: cellEl, piece: null, svg: null, filledAxes: new Set(), locked: false };
+      cells.push(cell);
 
-      const tile = document.createElement('button');
-      tile.type = 'button';
-      tile.className = 'water-tile';
-      tile.textContent = glyph;
-      tile.style.transform = `rotate(${tileState.rotation}deg)`;
-      tile.addEventListener('click', () => {
-        SoundFX.sfxWater();
-        tileState.rotation = (tileState.rotation + 90) % 360;
-        tile.style.transform = `rotate(${tileState.rotation}deg)`;
-        tile.classList.toggle('solved', tileState.rotation === 0);
-        updateStatus();
-      });
-      area.appendChild(tile);
+      if (i === sourceIdx) {
+        cellEl.classList.add('pipe-source');
+        cellEl.setAttribute('aria-label', 'Estação de tratamento (saída da água)');
+        cell.locked = true;
+        cell.svg = makeSvg();
+        const d = `M 50 50 L ${DIRS[srcDir].point}`;
+        addPath(cell.svg, d, 'pipe-shell');
+        addPath(cell.svg, d, 'pipe-core');
+        const tank = document.createElementNS(SVG_NS, 'circle');
+        tank.setAttribute('cx', '50');
+        tank.setAttribute('cy', '50');
+        tank.setAttribute('r', '26');
+        tank.setAttribute('class', 'pipe-tank');
+        cell.svg.appendChild(tank);
+        cellEl.appendChild(cell.svg);
+      } else {
+        cellEl.setAttribute('aria-label', 'Espaço da grade — colocar cano');
+        cellEl.addEventListener('click', () => {
+          if (finished || cell.locked) return;
+          SoundFX.sfxWater();
+          cell.piece = queue.shift();
+          queue.push(randomPiece());
+          cell.svg = makeSvg();
+          drawPiece(cell.svg, cell.piece);
+          cellEl.innerHTML = '';
+          cellEl.appendChild(cell.svg);
+          cellEl.classList.add('has-pipe');
+          renderQueue();
+        });
+      }
+      board.appendChild(cellEl);
     }
-
+    renderQueue();
     updateStatus();
 
-    const evaluate = () => {
-      clearInterval(this.minigameInterval);
-      const solved = tiles.filter((t) => t.rotation === 0).length;
-      const ratio = solved / totalTiles;
-      const bonus = solved === totalTiles
-        ? { waterPurity: 25 }
-        : ratio >= 0.7
-          ? { waterPurity: 15 }
-          : { waterPurity: 0 };
-      if (solved === totalTiles) this.recordMinigameWin('water');
-      this.showMinigameResult(bonus, `${solved}/${totalTiles} tubos conectados`);
+    // Anima a água entrando por `from` (ou saindo do centro, na fonte) e
+    // saindo por `to`. Visual via transição CSS — a lógica do jogo não
+    // depende dela terminar.
+    const pourWater = (cell, from, to) => {
+      const d = from
+        ? `M ${DIRS[from].point} L 50 50 L ${DIRS[to].point}`
+        : `M 50 50 L ${DIRS[to].point}`;
+      const water = addPath(cell.svg, d, 'pipe-water');
+      water.setAttribute('pathLength', '100');
+      water.style.transition = `stroke-dashoffset ${stepMs}ms linear`;
+      void water.getBoundingClientRect();
+      water.style.strokeDashoffset = '0';
     };
 
-    confirmBtn.onclick = evaluate;
-    this.runMinigameTimer(30, evaluate);
+    const evaluate = () => {
+      if (finished) return;
+      finished = true;
+      clearInterval(this.minigameInterval);
+      clearInterval(this.pipeFlowInterval);
+      clearTimeout(this.pipeLeakTimeout);
+      const bonus = pipesFilled >= GOAL
+        ? { waterPurity: 25 }
+        : pipesFilled >= Math.ceil(GOAL * 0.6)
+          ? { waterPurity: 15 }
+          : { waterPurity: 0 };
+      if (pipesFilled >= GOAL) this.recordMinigameWin('water');
+      this.showMinigameResult(bonus, `A água percorreu ${pipesFilled} canos`);
+    };
+
+    const leak = (cellEl) => {
+      clearInterval(this.pipeFlowInterval);
+      cellEl.classList.add('pipe-leak');
+      statusEl.textContent = `💦 Vazou! ${pipesFilled} canos com água`;
+      this.pipeLeakTimeout = setTimeout(evaluate, 1100);
+    };
+
+    const step = () => {
+      if (!flowStarted) {
+        flowStarted = true;
+        cells[sourceIdx].el.classList.add('flowing');
+        pourWater(cells[sourceIdx], null, srcDir);
+        return;
+      }
+      const row = Math.floor(flowCell / SIZE) + DIRS[flowDir].dr;
+      const col = (flowCell % SIZE) + DIRS[flowDir].dc;
+      if (row < 0 || row >= SIZE || col < 0 || col >= SIZE) {
+        leak(cells[flowCell].el);
+        return;
+      }
+      const idx = row * SIZE + col;
+      const cell = cells[idx];
+      const entry = DIRS[flowDir].opposite;
+      const sides = cell.piece ? PIECES[cell.piece] : null;
+      if (!sides || !sides.includes(entry)) {
+        leak(cell.el);
+        return;
+      }
+      const axis = entry === 'L' || entry === 'R' ? 'h' : 'v';
+      const exit = cell.piece === 'x' ? flowDir : sides.find((s) => s !== entry);
+      if (cell.filledAxes.has(axis) || (cell.piece !== 'x' && cell.filledAxes.size > 0)) {
+        leak(cell.el);
+        return;
+      }
+      cell.filledAxes.add(axis);
+      cell.locked = true;
+      cell.el.classList.add('flowing');
+      pourWater(cell, entry, exit);
+      pipesFilled += 1;
+      flowCell = idx;
+      flowDir = exit;
+      updateStatus();
+    };
+
+    this.pipeFlowInterval = setInterval(() => {
+      const now = performance.now();
+      if (now >= nextStepAt) {
+        step();
+        nextStepAt = now + stepMs;
+      }
+      if (!flowStarted) updateStatus();
+    }, 50);
+
+    // "Acelerar": solta a água na hora (se ainda estiver na contagem) e faz
+    // ela correr bem mais rápido até vazar — como o fast-flow do Pipe Dream.
+    confirmBtn.onclick = () => {
+      if (finished || stepMs === FAST_STEP_MS) return;
+      stepMs = FAST_STEP_MS;
+      nextStepAt = Math.min(nextStepAt, performance.now());
+    };
+    this.runMinigameTimer(120, evaluate);
   }
 
   setupEnergyMinigame() {
@@ -2808,16 +3053,27 @@ class TerraformGame {
         particle.remove();
       };
 
-      particle.addEventListener('click', () => {
+      // pointerdown (e não click): o click só dispara se o dedo/mouse
+      // soltar em cima do MESMO elemento, e como a partícula continua
+      // caindo entre apertar e soltar, muitos toques certeiros se perdiam.
+      // A partícula para de cair na hora e some com um "estouro" curto
+      // (feedback visual), removida por setTimeout — não por animationend.
+      particle.addEventListener('pointerdown', (e) => {
         if (entry.removed) return;
+        e.preventDefault();
+        entry.removed = true;
         if (type.cls === 'co2') {
           SoundFX.sfxCarbonCapture();
           co2Caught += 1;
+          particle.classList.add('caught');
         } else if (type.cls === 'o2') {
           errors += 1;
+          particle.classList.add('wrong');
+        } else {
+          particle.classList.add('caught');
         }
         updateStatus();
-        remove();
+        setTimeout(() => particle.remove(), 220);
       });
 
       entry.remove = remove;
@@ -2841,7 +3097,7 @@ class TerraformGame {
         }
       }
     };
-    this.carbonTickInterval = setInterval(tick, 50);
+    this.carbonTickInterval = setInterval(tick, 30);
 
     const restartSpawner = (rate) => {
       clearInterval(this.carbonSpawnInterval);
@@ -2997,11 +3253,19 @@ class TerraformGame {
       area.appendChild(cell);
     }
 
-    // Acende o fogo em uma célula inicial aleatória.
-    const startCell = Math.floor(Math.random() * total);
-    cellState[startCell] = 'fire';
-    cellEls[startCell].className = 'wildfire-cell fire';
+    // Acende o fogo em 2 a 3 células iniciais aleatórias (distintas).
+    const startCount = 2 + Math.floor(Math.random() * 2);
+    const candidates = Array.from({ length: total }, (_, i) => i);
+    for (let k = 0; k < startCount; k++) {
+      const pick = candidates.splice(Math.floor(Math.random() * candidates.length), 1)[0];
+      cellState[pick] = 'fire';
+      cellEls[pick].className = 'wildfire-cell fire';
+    }
     updateStatus();
+
+    // Com vários focos de uma vez, o primeiro tick só dá o aviso: o fogo
+    // começa a se espalhar no segundo tick, dando tempo de reagir.
+    let graceTicks = 1;
 
     // O fogo se espalha a cada tick via setInterval (nunca requestAnimationFrame
     // ou @keyframes — ver nota no Filtro de Carbono acima sobre por que este
@@ -3011,6 +3275,10 @@ class TerraformGame {
       cellState.forEach((s, i) => { if (s === 'fire') burning.push(i); });
       if (burning.length === 0) {
         clearInterval(this.wildfireSpreadInterval);
+        return;
+      }
+      if (graceTicks > 0) {
+        graceTicks -= 1;
         return;
       }
       burning.forEach((i) => {
@@ -3143,6 +3411,8 @@ class TerraformGame {
     clearInterval(this.carbonTickInterval);
     clearInterval(this.wildfireSpreadInterval);
     clearInterval(this.summitDecayInterval);
+    clearInterval(this.pipeFlowInterval);
+    clearTimeout(this.pipeLeakTimeout);
     if (this.carbonAccelTimeouts) {
       this.carbonAccelTimeouts.forEach(clearTimeout);
       this.carbonAccelTimeouts = null;
@@ -3481,6 +3751,50 @@ function initMobileFullscreen() {
   });
 }
 
+/* iPhone: o Safari não tem a API de tela cheia para páginas (só para
+   vídeo), então requestMobileFullscreen() não tem o que chamar lá. O único
+   jeito de tirar as barras do navegador é abrir o jogo pela Tela de Início
+   (as meta tags apple-mobile-web-app-* do index.html fazem ele abrir como
+   app). Este aviso no menu ensina isso — só aparece no iOS sem suporte a
+   tela cheia, fora do modo app, e some de vez se o jogador fechar. */
+const IOS_HINT_DISMISSED_KEY = 'terraform_ios_hint_dismissed';
+
+function isIosDevice() {
+  return /iPhone|iPod|iPad/.test(navigator.userAgent)
+    || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+}
+
+function isRunningAsApp() {
+  return navigator.standalone === true
+    || (window.matchMedia && (window.matchMedia('(display-mode: standalone)').matches
+      || window.matchMedia('(display-mode: fullscreen)').matches));
+}
+
+function initIosFullscreenHint() {
+  const hint = document.getElementById('ios-fullscreen-hint');
+  const closeBtn = document.getElementById('btn-ios-hint-close');
+  if (!hint || !closeBtn) return;
+
+  const el = document.documentElement;
+  const hasFullscreenApi = !!(el.requestFullscreen || el.webkitRequestFullscreen);
+  let dismissed = false;
+  try {
+    dismissed = localStorage.getItem(IOS_HINT_DISMISSED_KEY) === '1';
+  } catch (e) {
+    // Sem acesso ao armazenamento (ex.: navegação privada) — só mostra.
+  }
+  hint.hidden = !(isIosDevice() && !hasFullscreenApi && !isRunningAsApp() && !dismissed);
+
+  closeBtn.addEventListener('click', () => {
+    hint.hidden = true;
+    try {
+      localStorage.setItem(IOS_HINT_DISMISSED_KEY, '1');
+    } catch (e) {
+      // Idem: sem armazenamento, o aviso volta na próxima visita.
+    }
+  });
+}
+
 function initMenu() {
   const continueBtn = document.getElementById('btn-continue');
   continueBtn.disabled = !hasSavedGame();
@@ -3618,6 +3932,14 @@ function initGameplay() {
     game.skipMinigame();
   });
 
+  document.getElementById('btn-minigame-intro-skip').addEventListener('click', () => {
+    game.skipMinigame();
+  });
+
+  document.getElementById('btn-minigame-start').addEventListener('click', () => {
+    game.beginMinigame();
+  });
+
   document.getElementById('btn-minigame-continue').addEventListener('click', () => {
     game.finishMinigame(game.pendingMinigameBonus || {});
   });
@@ -3720,7 +4042,11 @@ function initEscapeToClose() {
       closeModal('about-modal');
     } else if (document.getElementById('minigame-modal').classList.contains('active')) {
       const resultVisible = document.getElementById('minigame-result').style.display !== 'none';
-      document.getElementById(resultVisible ? 'btn-minigame-continue' : 'btn-minigame-skip').click();
+      const introVisible = document.getElementById('minigame-intro').style.display !== 'none';
+      const target = resultVisible
+        ? 'btn-minigame-continue'
+        : introVisible ? 'btn-minigame-intro-skip' : 'btn-minigame-skip';
+      document.getElementById(target).click();
     }
   });
 }
@@ -3736,6 +4062,7 @@ function init() {
   initEnding();
   initEscapeToClose();
   initMobileFullscreen();
+  initIosFullscreenHint();
   showScreen(Screens.LOADING);
   setTimeout(() => {
     showScreen(Screens.MENU);

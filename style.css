@@ -75,12 +75,35 @@ html, body {
   min-height: 100%;
 }
 
+/* Celular (principalmente iPhone):
+   - touch-action: manipulation desativa o zoom de dois toques (em QUALQUER
+     elemento — touch-action não é herdado, por isso o *). Arrastar/rolar
+     continua funcionando; quem precisa de outro valor (ex.: partículas do
+     Filtro de Carbono) sobrescreve com uma regra mais específica.
+   - text-size-adjust: sem isso o Safari aumenta o texto sozinho ao girar
+     para paisagem, e o layout todo fica desproporcional.
+   - tap-highlight/touch-callout/user-select: tira o flash cinza ao tocar e
+     o menu/lupa de seleção ao segurar o dedo — coisas de página, não de jogo. */
+* {
+  touch-action: manipulation;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+}
+
 body {
   position: relative;
   font-family: var(--font-body);
   color: var(--text-light);
   min-height: 100vh;
+  min-height: 100dvh;
   overflow-x: hidden;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 /* ---------- Acessibilidade: foco visível ---------- */
@@ -201,10 +224,15 @@ body {
 .screen {
   display: none;
   min-height: 100vh;
+  min-height: 100dvh;
   width: 100%;
   align-items: center;
   justify-content: center;
   padding: 22.8px;
+  /* Notch / barra de gestos do iPhone (viewport-fit=cover no index.html):
+     nunca menos que a área segura do aparelho. */
+  padding: max(22.8px, env(safe-area-inset-top)) max(22.8px, env(safe-area-inset-right))
+    max(22.8px, env(safe-area-inset-bottom)) max(22.8px, env(safe-area-inset-left));
   position: relative;
 }
 
@@ -272,6 +300,43 @@ body {
   font-size: 0.7em;
   letter-spacing: 0.3px;
   opacity: 0.75;
+}
+
+/* Aviso "Adicionar à Tela de Início" (só iPhone — ver initIosFullscreenHint) */
+.ios-fullscreen-hint {
+  position: relative;
+  max-width: 420px;
+  margin: 15.2px auto;
+  padding: 9.5px 34px 9.5px 13.3px;
+  border: 1px solid rgba(0, 212, 255, 0.35);
+  border-radius: 9.5px;
+  background: rgba(0, 212, 255, 0.08);
+  color: var(--text-light);
+  font-size: 0.82em;
+  line-height: 1.4;
+  text-align: left;
+}
+
+.ios-fullscreen-hint[hidden] {
+  display: none;
+}
+
+.ios-fullscreen-hint strong {
+  color: var(--color-primary);
+}
+
+.ios-fullscreen-hint-close {
+  position: absolute;
+  top: 5.7px;
+  right: 5.7px;
+  width: 26px;
+  height: 26px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--text-light);
+  font-size: 0.9em;
+  cursor: pointer;
 }
 
 .tutorial-toggle {
@@ -469,7 +534,7 @@ body {
   width: 100%;
   max-width: 2400px;
   display: grid;
-  grid-template-columns: 1fr 1.25fr 0.5fr;
+  grid-template-columns: 0.9fr 1.3fr 0.5fr;
   grid-template-rows: auto auto auto;
   gap: 19px;
   column-gap: 106.4px;
@@ -1227,6 +1292,31 @@ body {
   font-size: 0.86em;
 }
 
+/* ---------- Tela de instruções do minigame ---------- */
+
+.minigame-intro {
+  text-align: center;
+  padding: 3.8px 3.8px 0;
+}
+
+.minigame-intro-text {
+  color: var(--text-light);
+  line-height: 1.45;
+  margin-bottom: 11.4px;
+}
+
+.minigame-intro-goal {
+  color: var(--color-secondary);
+  font-weight: 600;
+  margin-bottom: 17.1px;
+}
+
+.minigame-intro-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 9.5px;
+}
+
 /* ---------- Tela de resultado do minigame ---------- */
 
 .minigame-result {
@@ -1293,24 +1383,118 @@ body {
 
 /* Água Limpa: Conexão de Tubos */
 
-.water-grid {
-  grid-template-columns: repeat(4, 1fr);
+.pipe-area {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 9.5px;
 }
 
-.water-tile {
-  aspect-ratio: 1;
-  font-size: 1.62em;
-  background: #0d1230;
-  border: 1px solid rgba(255, 0, 64, 0.35);
+.pipe-queue {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5.7px;
+}
+
+.pipe-queue-label {
+  font-size: 0.66em;
+  color: var(--text-light);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.pipe-queue-slot {
+  width: 38px;
+  height: 38px;
   border-radius: 5.7px;
-  color: var(--color-alert);
-  cursor: pointer;
-  transition: transform 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+  background: #0d1230;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  opacity: 0.6;
 }
 
-.water-tile.solved {
-  color: var(--color-secondary);
-  border-color: var(--color-secondary);
+.pipe-queue-slot.next {
+  width: 52px;
+  height: 52px;
+  opacity: 1;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 9.5px rgba(0, 212, 255, 0.45);
+}
+
+.pipe-board {
+  flex: 0 1 auto;
+  width: min(100%, 330px);
+  aspect-ratio: 1;
+  display: grid;
+  grid-auto-rows: 1fr;
+  gap: 2px;
+}
+
+.pipe-cell {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  padding: 0;
+  background: #0d1230;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 3.8px;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.pipe-cell:hover:not(.flowing):not(.pipe-source) {
+  border-color: var(--color-primary);
+  background: #131a42;
+}
+
+.pipe-cell.flowing,
+.pipe-cell.pipe-source {
+  cursor: default;
+}
+
+.pipe-cell.pipe-source {
+  border-color: rgba(63, 182, 255, 0.7);
+}
+
+.pipe-cell.pipe-leak {
+  border-color: var(--color-alert);
+  background: rgba(255, 0, 64, 0.25);
+  box-shadow: 0 0 11.4px rgba(255, 0, 64, 0.7);
+}
+
+.pipe-svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.pipe-svg path {
+  fill: none;
+  stroke-linejoin: round;
+}
+
+.pipe-shell {
+  stroke: #6b7aa3;
+  stroke-width: 34;
+}
+
+.pipe-core {
+  stroke: #1b2248;
+  stroke-width: 22;
+}
+
+.pipe-water {
+  stroke: #3fb6ff;
+  stroke-width: 20;
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+}
+
+.pipe-tank {
+  fill: #3fb6ff;
+  stroke: #6b7aa3;
+  stroke-width: 6;
 }
 
 /* Rede de Energia */
@@ -1395,11 +1579,42 @@ body {
   font-weight: 700;
   cursor: pointer;
   color: #04101c;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
+  -webkit-tap-highlight-color: transparent;
+  will-change: top;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+/* Área de toque maior que o círculo visível: um toque "quase em cima"
+   da partícula também conta. */
+.carbon-particle::before {
+  content: '';
+  position: absolute;
+  inset: -10px;
+  border-radius: 50%;
+}
+
+.carbon-particle:hover {
+  z-index: 2;
+  filter: brightness(1.15);
 }
 
 .carbon-particle.co2 { background: var(--color-alert); }
 .carbon-particle.o2 { background: var(--color-secondary); }
 .carbon-particle.n2 { background: #FFD700; }
+
+.carbon-particle.caught,
+.carbon-particle.wrong {
+  pointer-events: none;
+  opacity: 0;
+  transform: scale(1.6);
+}
+
+.carbon-particle.wrong {
+  box-shadow: 0 0 0 4px var(--color-alert);
+}
 
 /* Restauração Genética */
 
@@ -1914,6 +2129,8 @@ body.shake-active .gameplay-grid {
     min-height: 100vh;
     min-height: 100dvh;
     padding: 9.5px;
+    padding: max(9.5px, env(safe-area-inset-top)) max(9.5px, env(safe-area-inset-right))
+      max(9.5px, env(safe-area-inset-bottom)) max(9.5px, env(safe-area-inset-left));
     overflow: hidden;
   }
 
@@ -2046,12 +2263,12 @@ body.shake-active .gameplay-grid {
   }
 
   .event-title {
-    font-size: 1.3em;
+    font-size: 1.38em;
     margin-bottom: 3.5px;
   }
 
   .event-description {
-    font-size: 1.15em;
+    font-size: 1.2em;
     line-height: 1.24;
   }
 
@@ -2171,6 +2388,8 @@ body.shake-active .gameplay-grid {
   .modal-overlay {
     align-items: flex-start;
     padding: 9.5px;
+    padding: max(9.5px, env(safe-area-inset-top)) max(9.5px, env(safe-area-inset-right))
+      max(9.5px, env(safe-area-inset-bottom)) max(9.5px, env(safe-area-inset-left));
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
   }
@@ -2181,13 +2400,15 @@ body.shake-active .gameplay-grid {
     padding: 14.25px;
   }
 
+  /* Altura = tela menos o padding vertical da overlay (que no iPhone
+     inclui a barra de gestos/notch, via safe-area). */
   .minigame-box {
     display: flex;
     flex-direction: column;
     height: calc(100vh - 19px);
-    height: calc(100dvh - 19px);
+    height: calc(100dvh - max(9.5px, env(safe-area-inset-top)) - max(9.5px, env(safe-area-inset-bottom)));
     max-height: calc(100vh - 19px);
-    max-height: calc(100dvh - 19px);
+    max-height: calc(100dvh - max(9.5px, env(safe-area-inset-top)) - max(9.5px, env(safe-area-inset-bottom)));
   }
 
   .modal-title {
@@ -2257,21 +2478,57 @@ body.shake-active .gameplay-grid {
     font-size: 0.8em;
   }
 
-  /* Água Limpa é diferente: cada peça GIRA 90° ao clicar, então célula
-     retangular distorce/sobrepõe as vizinhas na rotação — precisa continuar
-     quadrada. Em vez de esticar as células, encolhe o TABULEIRO inteiro
-     (aspect-ratio:1 no container) até caber na altura disponível, e
-     centraliza — sobra espaço nas laterais em vez de espichar as peças. */
-  .water-grid {
-    height: 100%;
-    max-width: 100%;
-    aspect-ratio: 1;
-    margin: 0 auto;
-    grid-auto-rows: 1fr;
+  /* Água Limpa é diferente: os canos precisam de células quadradas (senão
+     o desenho distorce). Em vez de esticar as células, o TABULEIRO inteiro
+     vira um quadrado do tamanho que couber — o menor entre a altura da área
+     e a largura que sobra ao lado da fila de peças (unidades de container:
+     cqw/cqh = largura/altura da própria .pipe-area). */
+  .pipe-area {
+    container-type: size;
+    align-items: center;
+    gap: 7.6px;
   }
 
-  .water-tile {
-    font-size: 1.2em;
+  /* 64px = largura fixa da fila (56px) + o gap entre fila e tabuleiro. */
+  .pipe-board {
+    width: min(calc(100cqw - 64px), 100cqh);
+    height: min(calc(100cqw - 64px), 100cqh);
+  }
+
+  .pipe-queue {
+    width: 56px;
+    gap: 3.8px;
+  }
+
+  .pipe-queue-label {
+    font-size: 0.55em;
+  }
+
+  .pipe-queue-slot {
+    width: 30px;
+    height: 30px;
+  }
+
+  .pipe-queue-slot.next {
+    width: 42px;
+    height: 42px;
+  }
+
+  /* Tela de instruções: centralizada no espaço livre do modal. */
+  .minigame-intro {
+    margin: auto 0;
+    min-height: 0;
+    overflow-y: auto;
+  }
+
+  .minigame-intro-text {
+    font-size: 0.9em;
+    margin-bottom: 7.6px;
+  }
+
+  .minigame-intro-goal {
+    font-size: 0.9em;
+    margin-bottom: 9.5px;
   }
 
   /* Cúpula das Facções não usa células quadradas (cards com ícone + barra)

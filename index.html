@@ -2,7 +2,19 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- viewport-fit=cover: no iPhone, o fundo do jogo ocupa também a área do
+     notch/barra de gestos (o conteúdo desvia dela via env(safe-area-inset-*)
+     no style.css), em vez de sobrar faixas vazias nas laterais. -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<!-- O Safari do iPhone não deixa site nenhum entrar em tela cheia. O jeito
+     é "Adicionar à Tela de Início": com estas tags, o jogo abre pelo ícone
+     como um app, sem as barras do navegador. -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="TERRAFORM">
+<meta name="theme-color" content="#0a0e27">
+<link rel="manifest" href="manifest.webmanifest">
 <title>TERRAFORM: O Resgate do Planeta Azul</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -50,6 +62,14 @@
       <div class="menu-buttons">
         <button id="btn-new-game" class="btn btn-primary">Novo Jogo</button>
         <button id="btn-continue" class="btn btn-secondary" disabled>Continuar</button>
+      </div>
+
+      <!-- Só aparece no iPhone/iPad sem suporte a tela cheia (ver
+           initIosFullscreenHint em main.js): lá o Safari não deixa sites
+           entrarem em tela cheia, então ensina o caminho que funciona. -->
+      <div id="ios-fullscreen-hint" class="ios-fullscreen-hint" hidden>
+        <p>📲 <strong>No iPhone o Safari não permite tela cheia.</strong> Para jogar sem as barras do navegador, toque em <strong>Compartilhar</strong> <span aria-hidden="true">⬆️</span> → <strong>Adicionar à Tela de Início</strong> e abra o jogo pelo ícone.</p>
+        <button type="button" id="btn-ios-hint-close" class="ios-fullscreen-hint-close" aria-label="Fechar aviso">✕</button>
       </div>
 
       <label class="tutorial-toggle" for="chk-tutorial">
@@ -325,6 +345,17 @@
   <div id="minigame-modal" class="modal-overlay">
     <div class="modal-box minigame-box fade-in" role="dialog" aria-modal="true" aria-labelledby="minigame-title" tabindex="-1">
       <h2 id="minigame-title" class="modal-title">Minigame</h2>
+
+      <!-- Tela de instruções: aparece antes de cada minigame, e o timer só
+           começa quando o jogador aperta "Começar". -->
+      <div id="minigame-intro" class="minigame-intro" style="display: none;">
+        <p id="minigame-intro-text" class="minigame-intro-text"></p>
+        <p id="minigame-intro-goal" class="minigame-intro-goal"></p>
+        <div class="minigame-intro-buttons">
+          <button id="btn-minigame-intro-skip" class="btn btn-secondary btn-small">Pular</button>
+          <button id="btn-minigame-start" class="btn btn-primary btn-small">Começar</button>
+        </div>
+      </div>
 
       <div class="minigame-timer-track">
         <div id="minigame-timer-bar" class="minigame-timer-fill"></div>
