@@ -18,9 +18,9 @@
 <hr>
 
 <p align="center">
-  <img alt="Versão" src="https://img.shields.io/badge/versão-1.7-00D4FF?style=flat-square">
-  <img alt="Status" src="https://img.shields.io/badge/status-QA%20concluído-00FF00?style=flat-square">
-  <img alt="Concurso" src="https://img.shields.io/badge/CROPE-2026-FFD700?style=flat-square">
+  <img alt="Versão" src="https://img.shields.io/badge/versão-2.0-00D4FF?style=flat-square">
+  <img alt="Status" src="https://img.shields.io/badge/status-versão%20final-00FF00?style=flat-square">
+  <img alt="Concurso" src="https://img.shields.io/badge/Concurso Atual-C.R.O.P.E.%202026-FFD700?style=flat-square">
   <img alt="Stack" src="https://img.shields.io/badge/stack-HTML%20%2F%20CSS%20%2F%20JS%20puro-C084FC?style=flat-square">
   <img alt="Licença" src="https://img.shields.io/badge/licença-todos%20os%20direitos%20reservados-FF0040?style=flat-square">
 </p>
@@ -41,9 +41,14 @@ Não existe escolha certa. Só consequências.
 ## 🎮 O jogo
 
 TERRAFORM é 100% **HTML, CSS e JavaScript puro** — sem framework, sem
-build step, sem dependência externa além das fontes do Google Fonts. Ele
-roda direto no navegador, local ou publicado, e foi construído do zero
-como projeto autoral para o **Concurso CROPE 2026**.
+build step, sem biblioteca. Os únicos recursos externos são as fontes do
+Google Fonts e os ícones 3D dos personagens (Microsoft Fluent Emoji, via
+jsDelivr). Ele roda direto no navegador, local ou publicado, e foi
+construído do zero como projeto autoral para o **Concurso CROPE 2026**.
+
+Ao abrir o jogo, a tela de carregamento baixa **todas** as trilhas e
+efeitos sonoros de uma vez (com barra de progresso), para que nenhuma
+música demore a começar durante a partida.
 
 ## 📚 Sumário
 
@@ -55,7 +60,7 @@ como projeto autoral para o **Concurso CROPE 2026**.
 - [🏆 Conquistas](#-conquistas)
 - [🔊 Trilha sonora e créditos](#-trilha-sonora-e-créditos)
 - [♿ Acessibilidade](#-acessibilidade)
-- [📱 Mobile](#-mobile)
+- [📱 Mobile e tela cheia](#-mobile-e-tela-cheia)
 - [✅ QA](#-qa)
 - [🗂️ Estrutura de arquivos](#-estrutura-de-arquivos)
 - [🛠️ Editando conteúdo](#-editando-conteúdo)
@@ -86,16 +91,26 @@ Os dados ficam em [`main.js`](main.js) (fonte de verdade), com uma cópia legív
 
 ## 🧩 Minigames
 
-7 minigames completos, cada um jogável **uma única vez por partida**, com timer visual, botão **Concluir** (encerra na hora) e botão **Pular**:
+7 minigames completos, cada um jogável **uma única vez por partida**. Antes de começar, uma tela explica como jogar e qual é a meta — o tempo só corre depois do **Começar**. Durante o jogo há timer visual, botão **Concluir** (encerra na hora) e botão **Pular**.
 
-🌲 Reflorestamento Rápido · 🚰 Água Limpa · ⚡ Rede de Energia · 🌪️ Filtro de Carbono · 🧬 Restauração Genética · 🔥 Contenção de Incêndio · 🤝 Cúpula das Facções
+| Minigame | Como funciona |
+|---|---|
+| 🌲 Reflorestamento Rápido | Plantar as 30 árvores em 20 segundos |
+| 🚰 Água Limpa | No estilo *Pipe Dream*: colocar os canos da fila na grade antes que a água saia da estação, e levá-la pelo maior caminho possível sem vazar (botão **Acelerar** solta a água mais rápido) |
+| ⚡ Rede de Energia | Ligar usinas a cidades até cobrir a demanda, que sobe com o tempo |
+| 🌪️ Filtro de Carbono | Tocar nas partículas de CO2 que caem, evitando o O2 |
+| 🧬 Restauração Genética | Jogo da memória com os pares do DNA (A–T, G–C) |
+| 🔥 Contenção de Incêndio | O fogo começa em 2 ou 3 focos e se espalha — apagar antes que queime a floresta |
+| 🤝 Cúpula das Facções | Manter a satisfação das 4 facções alta enquanto ela cai a cada segundo |
+
+Para testar os minigames sem jogar a campanha, abra [`test-minigames.html`](test-minigames.html).
 
 ## 🏁 Os 6 finais
 
 | Final | Nome | Condição resumida |
 |---|---|---|
 | 🕵️ Secreto | A Simulação | Investigar o suficiente + confrontar ARIA no Dia 34 |
-| ☠️ Apocalíptico | O Colapso | Biodiversidade, Ar e Água todos abaixo de 28% |
+| ☠️ Apocalíptico | O Colapso | Biodiversidade, Ar e Água todos abaixo de 28% — ou as 4 facções hostis ao mesmo tempo |
 | 🌱 Verde | O Novo Éden | Biodiversidade alta, Ecologistas fortes, Corporações fracas |
 | 💰 Corporativo | O Ouro Verde | Corporações, Créditos, Povo e Biodiversidade todos acima da meta ao mesmo tempo |
 | 🤖 Tecnológico | A Singularidade | Energia Limpa alta e Tecnocratas dominantes |
@@ -148,29 +163,38 @@ Todo o código, narrativa e design são autorais. As faixas e efeitos abaixo sã
 - `aria-live` nos pontos que mudam sozinhos (descrição do evento, status do minigame, toasts de conquista).
 - Suporte a `prefers-reduced-motion`: desliga animações decorativas e a revelação progressiva de texto para quem ativou essa preferência no sistema.
 
-## 📱 Mobile
+## 📱 Mobile e tela cheia
 
-O layout foi desenhado para **paisagem**. Em telas pequenas em retrato, um aviso pede para girar o aparelho antes de liberar o jogo.
+- O layout foi desenhado para **paisagem**. Em telas pequenas em retrato, um aviso pede para girar o aparelho antes de liberar o jogo.
+- No celular, o painel do jogo vira um **HUD de páginas deslizáveis** (Menu, Principal, Índices, Facções e Recursos) — arraste para os lados para trocar de página. O jogo sempre começa na página Principal.
+- Os minigames se adaptam à tela: as grades aparecem **inteiras**, encolhendo se for preciso, sem rolagem.
+- **Tela cheia obrigatória**: o jogo entra em tela cheia ao clicar em Novo Jogo ou Continuar; se sair dela, um aviso pede um toque para voltar.
+- **iPhone**: o Safari não permite tela cheia em sites. O menu mostra como contornar isso — *Compartilhar → Adicionar à Tela de Início* — e, aberto pelo ícone, o jogo roda como um app, sem as barras do navegador. O conteúdo respeita o notch e a barra de gestos.
+- O zoom de dois toques é desativado, para que toques rápidos nos minigames não deem zoom na tela.
 
 ## ✅ QA
 
 Antes desta versão: sintaxe de todos os arquivos validada; os 15 eventos
 autorais + 60 de preenchimento + 8 de quarta parede batendo 1:1 entre
-`main.js` e `events.json`; os 22 arquivos de áudio referenciados existem
-e tocam; um fluxo completo (menu → tutorial → decisão → minigame → final
-→ conquistas) sem nenhum erro no console; bloqueio de paisagem e
-navegação por teclado testados manualmente. Os 6 finais foram validados
-por simulação automatizada — taxas de sucesso reais de cada estratégia em
-[GUIA-DOS-FINAIS.md](GUIA-DOS-FINAIS.md).
+`main.js` e `events.json`; todos os IDs usados pelo código existem no HTML,
+sem funções, constantes ou estilos sem uso; os 22 arquivos de áudio
+referenciados existem, são pré-carregados e tocam; os 7 minigames testados
+no computador e em tela de celular; um fluxo completo (menu → tutorial →
+decisão → minigame → final → conquistas) sem nenhum erro no console;
+bloqueio de paisagem e navegação por teclado testados manualmente. Os 6
+finais foram validados por simulação automatizada — taxas de sucesso reais
+de cada estratégia em [GUIA-DOS-FINAIS.md](GUIA-DOS-FINAIS.md).
 
 ## 🗂️ Estrutura de arquivos
 
 ```
 .
-├── index.html          # Telas: loading, menu, tutorial, gameplay, ending, popups, modal de minigame
-├── style.css            # Paleta, glow, gradientes, layout, acessibilidade
-├── main.js              # GameState, motor de eventos, minigames, finais, conquistas, som
+├── index.html           # Telas: loading, menu, tutorial, gameplay, ending, popups, modal de minigame
+├── style.css             # Paleta, glow, gradientes, layout, mobile, acessibilidade
+├── main.js               # GameState, motor de eventos, minigames, finais, conquistas, som
 ├── events.json           # Cópia legível dos dados de eventos (editar junto com main.js)
+├── manifest.json         # Faz o jogo abrir como app (tela cheia) quando adicionado à tela inicial
+├── test-minigames.html   # Página de teste: abre cada minigame direto, sem jogar a campanha
 ├── assets/               # Trilhas e efeitos sonoros (.aac)
 ├── GUIA-DOS-FINAIS.md    # Caminho testado, dia a dia, para cada um dos 6 finais
 ├── README.md             # Este arquivo

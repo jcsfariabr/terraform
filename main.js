@@ -4,13 +4,41 @@ const SOUND_KEY = 'terraform_sound';
 const TUTORIAL_SEEN_KEY = 'terraform_tutorial_seen';
 const ACHIEVEMENTS_KEY = 'terraform_achievements';
 const MINIGAME_WINS_KEY = 'terraform_minigame_wins';
+const IOS_HINT_DISMISSED_KEY = 'terraform_ios_hint_dismissed';
 const TOTAL_DAYS = 40;
+
+/* Acesso ao localStorage sempre protegido: se o navegador bloquear o
+   armazenamento (cookies/dados de site desativados, alguns modos privados)
+   ou ele estiver cheio, o jogo continua funcionando — só não salva. */
+function storageGet(key) {
+  try {
+    return localStorage.getItem(key);
+  } catch (err) {
+    return null;
+  }
+}
+
+function storageSet(key, value) {
+  try {
+    localStorage.setItem(key, value);
+  } catch (err) {
+    // Sem armazenamento disponível: segue sem salvar.
+  }
+}
+
+function storageRemove(key) {
+  try {
+    localStorage.removeItem(key);
+  } catch (err) {
+    // Idem.
+  }
+}
 
 /* ---------------------------------------------------------------------
    Conquistas — persistem entre partidas via localStorage (diferente do
    save da partida atual). Cada uma tem uma `description` (mostrada quando
-   desbloqueada) e um `hint` mais vago (para a futura tela de conquistas
-   mostrar as que faltam com mistério, sem entregar a condição exata).
+   desbloqueada) e um `hint` mais vago (que a tela de conquistas mostra
+   nas que faltam, com mistério, sem entregar a condição exata).
    Os ids `ending-*` batem com as chaves de ENDINGS/determineEnding().
    --------------------------------------------------------------------- */
 
@@ -204,7 +232,7 @@ const TUTORIAL_STEPS = [
   },
   {
     title: 'Decisões e Minigames',
-    text: 'A cada dia você escolhe entre duas opções. Algumas abrem um minigame rápido: dá para jogar até o fim, apertar "Concluir" para encerrar na hora, ou "Pular" de vez. Cada minigame aparece só uma vez por partida.',
+    text: 'A cada dia você escolhe entre duas opções. Algumas abrem um minigame rápido, que começa com uma explicação de como jogar: dá para jogar até o fim, encerrar antes, ou "Pular" de vez. Cada minigame aparece só uma vez por partida.',
   },
   {
     title: '40 Dias, 6 Destinos',
@@ -253,14 +281,10 @@ function preloadCharacterSkins() {
 }
 
 /* ---------------------------------------------------------------------
-   Som — sintetizado via Web Audio API (sem arquivos externos), com
-   preferência salva em localStorage.
+   Som — trilhas e efeitos gravados (assets/*.aac), todos pré-carregados
+   na tela de carregamento, com a preferência ligado/desligado salva.
    --------------------------------------------------------------------- */
 
-/* Arquivos reais de áudio (assets/*.aac) — trilhas e efeitos gravados,
-   usados no lugar dos tons sintetizados que o projeto usava antes. Mantém
-   `tone`/`ensureContext` como utilitário de baixo nível (não usado pelos
-   atalhos abaixo, mas disponível se algum arquivo faltar/falhar). */
 const AUDIO_FILES = {
   uiClick: 'assets/ui-click.aac',
   successChime: 'assets/success-chime.aac',
@@ -323,46 +347,9 @@ const MUSIC_CREDITS = [
 ];
 
 const SoundFX = {
-  ctx: null,
-  enabled: (() => {
-    const stored = localStorage.getItem(SOUND_KEY);
-    return stored === null ? true : stored === 'true';
-  })(),
+  enabled: storageGet(SOUND_KEY) !== 'false',
 
-  ensureContext() {
-    if (!this.ctx) {
-      const AudioCtx = window.AudioContext || window.webkitAudioContext;
-      this.ctx = new AudioCtx();
-    }
-    if (this.ctx.state === 'suspended') {
-      this.ctx.resume();
-    }
-    return this.ctx;
-  },
-
-  tone(freq, duration, type = 'sine', gain = 0.08) {
-    if (!this.enabled) return;
-    try {
-      const ctx = this.ensureContext();
-      const osc = ctx.createOscillator();
-      const gainNode = ctx.createGain();
-      osc.type = type;
-      osc.frequency.value = freq;
-      gainNode.gain.value = gain;
-      gainNode.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + duration);
-      osc.connect(gainNode);
-      gainNode.connect(ctx.destination);
-      osc.start();
-      osc.stop(ctx.currentTime + duration);
-    } catch (err) {
-      // Web Audio pode falhar em contextos restritos; som é só um extra.
-    }
-  },
-
-  /* Toca um efeito curto (assets/*.aac). Cada chamada usa uma cópia própria
-     do elemento (cloneNode), então cliques rápidos em sequência não cortam
-     o som um do outro — importante pros minigames (ex.: plantar 30 árvores
-     seguidas). O elemento-base de cada chave é criado uma vez e cacheado. */
+  // Player pronto de cada arquivo (ver audioEl).
   audioCache: {},
 
   // Limite de instâncias tocando ao mesmo tempo (entre todos os efeitos
@@ -372,19 +359,66 @@ const SoundFX = {
   concurrentPlaybacks: 0,
   maxConcurrentPlaybacks: 16,
 
+  /* Pré-carregamento: todas as trilhas e efeitos são baixados para a
+     memória durante a tela de carregamento (preloadAll), e cada um vira uma
+     URL local (blob:) — tocar depois é instantâneo, sem esperar a rede. Sem
+     isso, as trilhas grandes (ambiente ~7 MB, finais 2–4 MB) só começavam a
+     baixar na hora de tocar e demoravam a entrar. Se o download falhar (ex.:
+     index.html aberto direto do disco, onde o navegador bloqueia fetch), o
+     arquivo original é usado normalmente. */
+  loadedSrc: {},
+
+  srcFor(key) {
+    return this.loadedSrc[key] || AUDIO_FILES[key];
+  },
+
+  /* Um player por arquivo, criado já no pré-carregamento (e recriado se a
+     versão em memória ficar pronta depois). As trilhas longas tocam nele
+     direto; os efeitos curtos tocam numa cópia dele (ver playFile). Assim
+     tudo já está decodificado e pronto na hora de tocar. */
+  audioEl(key) {
+    const src = this.srcFor(key);
+    let el = this.audioCache[key];
+    if (!el || el.src !== new URL(src, location.href).href) {
+      el = new Audio(src);
+      el.preload = 'auto';
+      this.audioCache[key] = el;
+    }
+    return el;
+  },
+
+  preloadAll(onProgress) {
+    const keys = Object.keys(AUDIO_FILES);
+    let done = 0;
+    const report = () => {
+      done += 1;
+      if (onProgress) onProgress(done, keys.length);
+    };
+    return Promise.all(keys.map((key) =>
+      fetch(AUDIO_FILES[key])
+        .then((res) => {
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          return res.blob();
+        })
+        .then((blob) => {
+          this.loadedSrc[key] = URL.createObjectURL(blob);
+          this.audioEl(key).load();
+        })
+        .catch(() => {
+          // Fica com o caminho original (srcFor cai nele) — o som ainda toca.
+        })
+        .then(report)));
+  },
+
+  /* Toca um efeito curto. Cada chamada usa uma cópia própria do player
+     (cloneNode), então cliques rápidos em sequência não cortam o som um do
+     outro — importante pros minigames (ex.: plantar 30 árvores seguidas). */
   playFile(key, volume = 0.8) {
     if (!this.enabled) return;
     if (this.concurrentPlaybacks >= this.maxConcurrentPlaybacks) return;
-    const src = AUDIO_FILES[key];
-    if (!src) return;
+    if (!AUDIO_FILES[key]) return;
     try {
-      let base = this.audioCache[key];
-      if (!base) {
-        base = new Audio(src);
-        base.preload = 'auto';
-        this.audioCache[key] = base;
-      }
-      const node = base.cloneNode(true);
+      const node = this.audioEl(key).cloneNode(true);
       node.volume = volume;
       this.concurrentPlaybacks += 1;
       const release = () => { this.concurrentPlaybacks = Math.max(0, this.concurrentPlaybacks - 1); };
@@ -438,7 +472,8 @@ const SoundFX = {
     this.stopAmbient();
     if (!this.enabled) return;
     try {
-      const el = new Audio(AUDIO_FILES.ambientLoop);
+      const el = this.audioEl('ambientLoop');
+      el.currentTime = 0;
       el.loop = true;
       el.volume = 0;
       el.play().catch(() => {});
@@ -477,7 +512,8 @@ const SoundFX = {
     const key = ENDING_MUSIC_KEY[endingKey];
     if (!key) return;
     try {
-      const el = new Audio(AUDIO_FILES[key]);
+      const el = this.audioEl(key);
+      el.currentTime = 0;
       el.loop = true;
       el.volume = 0.5;
       el.play().catch(() => {});
@@ -500,7 +536,7 @@ const SoundFX = {
 
   toggle() {
     this.enabled = !this.enabled;
-    localStorage.setItem(SOUND_KEY, String(this.enabled));
+    storageSet(SOUND_KEY, String(this.enabled));
     if (!this.enabled) {
       this.stopAmbient();
       this.stopEndingMusic();
@@ -520,8 +556,7 @@ const Screens = {
 };
 
 /* ---------------------------------------------------------------------
-   Finais — dados dos 4 finais do MVP (Corporativo e Secreto ficam para
-   uma iteração futura, conforme o plano).
+   Finais — os 6 destinos possíveis (escolhidos em determineEnding()).
    --------------------------------------------------------------------- */
 
 const ENDINGS = {
@@ -670,11 +705,11 @@ class GameState {
   }
 
   saveToStorage() {
-    localStorage.setItem(SAVE_KEY, JSON.stringify(this));
+    storageSet(SAVE_KEY, JSON.stringify(this));
   }
 
   static loadFromStorage() {
-    const raw = localStorage.getItem(SAVE_KEY);
+    const raw = storageGet(SAVE_KEY);
     if (!raw) return null;
     try {
       const data = JSON.parse(raw);
@@ -2020,7 +2055,7 @@ class TerraformGame {
   }
 
   finishTutorial() {
-    localStorage.setItem(TUTORIAL_SEEN_KEY, '1');
+    storageSet(TUTORIAL_SEEN_KEY, '1');
     const onComplete = this.tutorialOnComplete;
     this.tutorialOnComplete = null;
     if (onComplete) onComplete();
@@ -2228,7 +2263,7 @@ class TerraformGame {
       this.unlockAchievement('sobrevivente');
     }
 
-    localStorage.removeItem(SAVE_KEY);
+    storageRemove(SAVE_KEY);
 
     document.body.dataset.ending = endingKey;
     document.getElementById('ending-badge-text').textContent = `Badge desbloqueado: ${ending.badge}`;
@@ -3647,12 +3682,12 @@ function closeModal(overlayId) {
 }
 
 function hasSavedGame() {
-  return localStorage.getItem(SAVE_KEY) !== null;
+  return storageGet(SAVE_KEY) !== null;
 }
 
 function loadBadges() {
   try {
-    const raw = localStorage.getItem(BADGES_KEY);
+    const raw = storageGet(BADGES_KEY);
     return raw ? JSON.parse(raw) : [];
   } catch (err) {
     console.error('Falha ao carregar badges:', err);
@@ -3661,12 +3696,12 @@ function loadBadges() {
 }
 
 function saveBadges(badges) {
-  localStorage.setItem(BADGES_KEY, JSON.stringify(badges));
+  storageSet(BADGES_KEY, JSON.stringify(badges));
 }
 
 function loadAchievements() {
   try {
-    const raw = localStorage.getItem(ACHIEVEMENTS_KEY);
+    const raw = storageGet(ACHIEVEMENTS_KEY);
     return raw ? JSON.parse(raw) : [];
   } catch (err) {
     console.error('Falha ao carregar conquistas:', err);
@@ -3675,12 +3710,12 @@ function loadAchievements() {
 }
 
 function saveAchievements(ids) {
-  localStorage.setItem(ACHIEVEMENTS_KEY, JSON.stringify(ids));
+  storageSet(ACHIEVEMENTS_KEY, JSON.stringify(ids));
 }
 
 function loadMinigameWins() {
   try {
-    const raw = localStorage.getItem(MINIGAME_WINS_KEY);
+    const raw = storageGet(MINIGAME_WINS_KEY);
     return raw ? JSON.parse(raw) : {};
   } catch (err) {
     console.error('Falha ao carregar vitórias de minigame:', err);
@@ -3689,7 +3724,7 @@ function loadMinigameWins() {
 }
 
 function saveMinigameWins(wins) {
-  localStorage.setItem(MINIGAME_WINS_KEY, JSON.stringify(wins));
+  storageSet(MINIGAME_WINS_KEY, JSON.stringify(wins));
 }
 
 /* ---------------------------------------------------------------------
@@ -3757,7 +3792,6 @@ function initMobileFullscreen() {
    (as meta tags apple-mobile-web-app-* do index.html fazem ele abrir como
    app). Este aviso no menu ensina isso — só aparece no iOS sem suporte a
    tela cheia, fora do modo app, e some de vez se o jogador fechar. */
-const IOS_HINT_DISMISSED_KEY = 'terraform_ios_hint_dismissed';
 
 function isIosDevice() {
   return /iPhone|iPod|iPad/.test(navigator.userAgent)
@@ -3777,21 +3811,12 @@ function initIosFullscreenHint() {
 
   const el = document.documentElement;
   const hasFullscreenApi = !!(el.requestFullscreen || el.webkitRequestFullscreen);
-  let dismissed = false;
-  try {
-    dismissed = localStorage.getItem(IOS_HINT_DISMISSED_KEY) === '1';
-  } catch (e) {
-    // Sem acesso ao armazenamento (ex.: navegação privada) — só mostra.
-  }
+  const dismissed = storageGet(IOS_HINT_DISMISSED_KEY) === '1';
   hint.hidden = !(isIosDevice() && !hasFullscreenApi && !isRunningAsApp() && !dismissed);
 
   closeBtn.addEventListener('click', () => {
     hint.hidden = true;
-    try {
-      localStorage.setItem(IOS_HINT_DISMISSED_KEY, '1');
-    } catch (e) {
-      // Idem: sem armazenamento, o aviso volta na próxima visita.
-    }
+    storageSet(IOS_HINT_DISMISSED_KEY, '1');
   });
 }
 
@@ -3802,7 +3827,7 @@ function initMenu() {
   // Ligada por padrão só na primeira vez que o jogo é aberto neste
   // navegador; depois disso o jogador decide manualmente a cada visita.
   const tutorialCheckbox = document.getElementById('chk-tutorial');
-  tutorialCheckbox.checked = localStorage.getItem(TUTORIAL_SEEN_KEY) === null;
+  tutorialCheckbox.checked = storageGet(TUTORIAL_SEEN_KEY) === null;
 
   document.getElementById('btn-new-game').addEventListener('click', () => {
     requestMobileFullscreen();
@@ -4064,9 +4089,32 @@ function init() {
   initMobileFullscreen();
   initIosFullscreenHint();
   showScreen(Screens.LOADING);
-  setTimeout(() => {
+  runLoadingScreen();
+}
+
+/* A tela de carregamento fica no ar até TODOS os áudios estarem prontos
+   (com barra de progresso), e por no mínimo 2,5 s para a animação de
+   abertura. Numa conexão muito lenta, depois de 30 s o menu abre mesmo
+   assim — o resto continua baixando em segundo plano. */
+const LOADING_MIN_MS = 2500;
+const LOADING_MAX_MS = 30000;
+
+function runLoadingScreen() {
+  const fill = document.getElementById('loading-progress-fill');
+  const label = document.getElementById('loading-progress-label');
+
+  const audioReady = SoundFX.preloadAll((done, total) => {
+    const pct = Math.round((done / total) * 100);
+    if (fill) fill.style.width = `${pct}%`;
+    if (label) label.textContent = `Carregando trilhas e efeitos sonoros… ${pct}%`;
+  });
+  const minDelay = new Promise((resolve) => setTimeout(resolve, LOADING_MIN_MS));
+  const maxDelay = new Promise((resolve) => setTimeout(resolve, LOADING_MAX_MS));
+
+  Promise.race([Promise.all([audioReady, minDelay]), maxDelay]).then(() => {
+    if (!document.getElementById(Screens.LOADING).classList.contains('active')) return;
     showScreen(Screens.MENU);
-  }, 2500);
+  });
 }
 
 document.addEventListener('DOMContentLoaded', init);

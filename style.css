@@ -1,4 +1,4 @@
-﻿/* ==========================================================================
+/* ==========================================================================
    TERRAFORM — Identidade Visual (Etapa 7: redesign — sci-fi cinematográfico
    + ilustrativo: fundo estelar, glassmorphism, planeta maior e animado,
    temas de cor por ato/final, micro-interações)
@@ -362,6 +362,30 @@ body {
 
 .loading-content {
   text-align: center;
+}
+
+/* Barra de progresso do pré-carregamento dos áudios (runLoadingScreen) */
+.loading-progress {
+  width: min(280px, 80vw);
+  height: 5.7px;
+  margin: 19px auto 0;
+  border-radius: 3.8px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+
+.loading-progress-fill {
+  width: 0;
+  height: 100%;
+  background: var(--color-primary);
+  box-shadow: 0 0 9.5px rgba(0, 212, 255, 0.6);
+  transition: width 0.25s ease;
+}
+
+.loading-progress-label {
+  margin-top: 7.6px;
+  color: var(--text-muted);
+  font-size: 0.78em;
 }
 
 .loading-planet {
@@ -865,10 +889,6 @@ body {
 .icon-chip--air { box-shadow: inset 0 0 0 1px rgba(0, 212, 255, 0.4), 0 0 8px rgba(0, 212, 255, 0.25); }
 .icon-chip--water { box-shadow: inset 0 0 0 1px rgba(0, 174, 239, 0.4), 0 0 8px rgba(0, 174, 239, 0.25); }
 .icon-chip--energy { box-shadow: inset 0 0 0 1px rgba(255, 215, 0, 0.4), 0 0 8px rgba(255, 215, 0, 0.25); }
-.icon-chip--technocrats { box-shadow: inset 0 0 0 1px rgba(255, 215, 0, 0.4), 0 0 8px rgba(255, 215, 0, 0.2); }
-.icon-chip--ecologists { box-shadow: inset 0 0 0 1px rgba(0, 221, 0, 0.4), 0 0 8px rgba(0, 221, 0, 0.2); }
-.icon-chip--corporations { box-shadow: inset 0 0 0 1px rgba(221, 0, 0, 0.4), 0 0 8px rgba(221, 0, 0, 0.2); }
-.icon-chip--people { box-shadow: inset 0 0 0 1px rgba(0, 221, 221, 0.4), 0 0 8px rgba(0, 221, 221, 0.2); }
 .icon-chip--credits { box-shadow: inset 0 0 0 1px rgba(255, 215, 0, 0.4), 0 0 8px rgba(255, 215, 0, 0.2); }
 .icon-chip--influence { box-shadow: inset 0 0 0 1px rgba(192, 132, 252, 0.4), 0 0 8px rgba(192, 132, 252, 0.2); }
 

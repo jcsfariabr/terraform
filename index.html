@@ -14,7 +14,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="TERRAFORM">
 <meta name="theme-color" content="#0a0e27">
-<link rel="manifest" href="manifest.webmanifest">
+<link rel="manifest" href="manifest.json">
 <title>TERRAFORM: O Resgate do Planeta Azul</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -49,6 +49,10 @@
       <div class="loading-planet"></div>
       <h1 class="glow-title">TERRAFORM</h1>
       <p class="loading-text">Inicializando sistemas de terraformação...</p>
+      <div class="loading-progress" aria-hidden="true">
+        <div id="loading-progress-fill" class="loading-progress-fill"></div>
+      </div>
+      <p id="loading-progress-label" class="loading-progress-label" aria-live="polite">Carregando trilhas e efeitos sonoros… 0%</p>
     </div>
   </section>
 

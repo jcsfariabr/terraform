@@ -229,7 +229,7 @@ indicadores — vale a pena tentar de novo se isso acontecer.
 | 10 | Relatório de Progresso | A | Neutro |
 | 11 | ☠️ Evento aleatório | — | Priorize dano à Água; senão, Bio/Ar. Evite aumentar Tecnocratas/Energia Limpa |
 | 12 | ☠️ Evento aleatório | — | Priorize dano à Água; senão, Bio/Ar. Evite aumentar Tecnocratas/Energia Limpa |
-| 13 | Crise da Água (minigame 💧) | **B** | Água -10; **não gire nenhum tubo** no minigame |
+| 13 | Crise da Água (minigame 💧) | **B** | Água -10; **não coloque nenhum cano** no minigame |
 | 14 | ☠️ Evento aleatório | — | Priorize dano à Água; senão, Bio/Ar. Evite aumentar Tecnocratas/Energia Limpa |
 | 15 | ☠️ Evento aleatório | — | Priorize dano à Água; senão, Bio/Ar. Evite aumentar Tecnocratas/Energia Limpa |
 | 16 | Projeto de Clonagem Genética (minigame 🧬) | B | **Não vire nenhuma carta** no minigame |
