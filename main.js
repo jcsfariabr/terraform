@@ -463,12 +463,14 @@ const SoundFX = {
     else this.failBuzz();
   },
 
-  /* Trilha ambiente de fundo durante a gameplay (assets/ambient-space-loop.aac),
-     em loop com fade-in suave — no lugar do drone sintetizado que o projeto
-     usava antes. */
+  /* Trilha ambiente de fundo (assets/ambient-space-loop.aac), em loop com
+     fade-in suave — toca no tutorial com ARIA e na gameplay. Se já estiver
+     tocando (ex.: o tutorial terminou e o Dia 1 começou), segue de onde
+     está, sem reiniciar a faixa. */
   ambientEl: null,
 
   startAmbient() {
+    if (this.ambientEl && !this.ambientEl.paused) return;
     this.stopAmbient();
     if (!this.enabled) return;
     try {
@@ -540,7 +542,8 @@ const SoundFX = {
     if (!this.enabled) {
       this.stopAmbient();
       this.stopEndingMusic();
-    } else if (document.getElementById('screen-gameplay').classList.contains('active')) {
+    } else if (document.getElementById(Screens.GAMEPLAY).classList.contains('active')
+      || document.getElementById(Screens.TUTORIAL).classList.contains('active')) {
       this.startAmbient();
     }
     return this.enabled;
@@ -2020,6 +2023,7 @@ class TerraformGame {
     this.tutorialIndex = 0;
     this.tutorialOnComplete = onComplete;
     document.getElementById('tutorial-avatar').src = TUTORIAL_AVATAR;
+    SoundFX.startAmbient();
     this.showTutorialStep();
   }
 
@@ -3906,16 +3910,19 @@ function initMenuModals() {
 
 function initTutorial() {
   document.getElementById('btn-tutorial-next').addEventListener('click', () => {
+    SoundFX.click();
     game.advanceTutorial();
   });
 
   document.getElementById('btn-tutorial-skip').addEventListener('click', () => {
+    SoundFX.click();
     game.skipTutorial();
   });
 
   // Clique no próprio painel: mesmo atalho do painel de evento no gameplay.
   document.getElementById('tutorial-panel').addEventListener('click', (e) => {
     if (e.target.closest('button')) return;
+    SoundFX.click();
     game.advanceTutorial();
   });
 }
